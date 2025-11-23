@@ -25,4 +25,4 @@
 
 ---
 
-**Live Demo:** [Your GitHub Pages Link Here]
+**Live Demo:** [https://academiatrack.vercel.app/]
