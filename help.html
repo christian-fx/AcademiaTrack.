@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Help & Support - AcademiaTrack</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@100..900&amp;display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
+    <script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "primary": "#135bec",
+              "background-light": "#f6f6f8",
+              "background-dark": "#101622",
+              "success": "#10B981",
+              "warning": "#F59E0B",
+              "error": "#EF4444"
+            },
+            fontFamily: {
+              "display": ["Lexend", "sans-serif"]
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+    <style>
+        body {
+            font-family: 'Lexend', sans-serif;
+        }
+        
+        /* Mobile Menu Styles */
+        .mobile-menu {
+            transform: translateX(-100%);
+            transition: transform 0.3s ease-in-out;
+        }
+        
+        .mobile-menu.open {
+            transform: translateX(0);
+        }
+        
+        .menu-overlay {
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease-in-out;
+        }
+        
+        .menu-overlay.open {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .faq-item {
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        .faq-item:last-child {
+            border-bottom: none;
+        }
+        
+        .faq-answer {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+        }
+        
+        .faq-answer.open {
+            max-height: 500px;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-gray-800 dark:text-gray-200">
+    <div class="relative flex h-auto min-h-screen w-full flex-col group/design-root overflow-x-hidden">
+        <div class="layout-container flex h-full grow flex-col">
+            <div class="flex flex-1 justify-center py-5">
+                <div class="layout-content-container flex flex-col w-full max-w-5xl flex-1 px-4 md:px-8 lg:px-0">
+                    <!-- TopNavBar -->
+                    <header class="flex items-center justify-between whitespace-nowrap border-b border-solid border-gray-200 dark:border-gray-700 px-4 md:px-10 py-4 mb-8 bg-white/50 dark:bg-black/20 rounded-xl backdrop-blur-sm">
+                        <div class="flex items-center gap-4 text-gray-900 dark:text-white">
+                            <div class="size-6 text-primary">
+                                <svg fill="currentColor" viewbox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+                                    <g clip-path="url(#clip0_6_330)">
+                                        <path clip-rule="evenodd" d="M24 0.757355L47.2426 24L24 47.2426L0.757355 24L24 0.757355ZM21 35.7574V12.2426L9.24264 24L21 35.7574Z" fill="currentColor" fill-rule="evenodd"></path>
+                                    </g>
+                                    <defs>
+                                        <clippath id="clip0_6_330"><rect fill="white" height="48" width="48"></rect></clippath>
+                                    </defs>
+                                </svg>
+                            </div>
+                            <h2 class="text-lg font-bold tracking-tight">AcademiaTrack</h2>
+                        </div>
+                        <div class="hidden md:flex flex-1 justify-end gap-8">
+                            <div class="flex items-center gap-9">
+                                <a class="text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-primary dark:hover:text-primary" href="homepage.html">Dashboard</a>
+                                <a class="text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-primary dark:hover:text-primary" href="coursespage.html">Courses</a>
+                                <a class="text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-primary dark:hover:text-primary" href="activities-page.html">Activities</a>
+                                <a class="text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-primary dark:hover:text-primary" href="profile-page.html">Profile</a>
+                                <a class="text-sm font-medium text-primary dark:text-primary" href="help-page.html">Help</a>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <span id="user-name" class="text-sm font-medium text-gray-700 dark:text-gray-300"></span>
+                                <div id="profile-image" class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10 border-2 border-white dark:border-gray-800 shadow-sm" data-alt="User profile avatar image"></div>
+                            </div>
+                        </div>
+                        <button id="menu-toggle" class="md:hidden p-2 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-800">
+                            <span class="material-symbols-outlined text-gray-800 dark:text-gray-200">menu</span>
+                        </button>
+                    </header>
+
+                    <!-- Mobile Menu -->
+                    <div id="mobile-menu" class="mobile-menu fixed top-0 left-0 h-full w-64 bg-white dark:bg-gray-800 shadow-lg z-50 md:hidden">
+                        <div class="p-4 border-b border-gray-200 dark:border-gray-700">
+                            <div class="flex items-center gap-3">
+                                <div class="size-6 text-primary">
+                                    <svg fill="currentColor" viewbox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+                                        <g clip-path="url(#clip0_6_330)">
+                                            <path clip-rule="evenodd" d="M24 0.757355L47.2426 24L24 47.2426L0.757355 24L24 0.757355ZM21 35.7574V12.2426L9.24264 24L21 35.7574Z" fill="currentColor" fill-rule="evenodd"></path>
+                                        </g>
+                                    </svg>
+                                </div>
+                                <h2 class="text-lg font-bold">AcademiaTrack</h2>
+                            </div>
+                        </div>
+                        <nav class="p-4">
+                            <ul class="space-y-4">
+                                <li>
+                                    <a href="homepage.html" class="block text-gray-800 dark:text-gray-200 hover:text-primary dark:hover:text-primary py-2">Dashboard</a>
+                                </li>
+                                <li>
+                                    <a href="activitiespage.html" class="block text-gray-800 dark:text-gray-200 hover:text-primary dark:hover:text-primary py-2">Activities</a>
+                                </li>
+                                <li>
+                                    <a href="progresspage.html" class="block text-gray-800 dark:text-gray-200 hover:text-primary dark:hover:text-primary py-2">Progress</a>
+                                </li>
+                                <li>
+                                    <a href="profile-page.html" class="block text-gray-800 dark:text-gray-200 hover:text-primary dark:hover:text-primary py-2">Profile</a>
+                                </li>
+                                <li>
+                        <a href="chatbot.html" class="block text-gray-800 dark:text-gray-200 hover:text-primary dark:hover:text-primary py-2">ChatBot</a>
+                    </li>
+                                <li class="pt-4 border-t border-gray-200 dark:border-gray-700">
+                                    <button id="mobile-logout" class="block w-full text-center bg-red-500 text-white py-2 px-4 rounded-lg hover:bg-red-600 transition-colors">
+                                        Logout
+                                    </button>
+                                </li>
+                            </ul>
+                        </nav>
+                    </div>
+
+                    <!-- Menu Overlay -->
+                    <div id="menu-overlay" class="menu-overlay fixed inset-0 bg-black bg-opacity-50 z-40 md:hidden"></div>
+
+                    <main class="flex flex-col gap-8 w-full">
+                        <!-- Page Heading -->
+                        <div class="flex flex-wrap justify-between gap-3 px-4">
+                            <div class="flex min-w-72 flex-col gap-2">
+                                <p class="text-gray-900 dark:text-white text-4xl font-black leading-tight tracking-tighter">Help & Support</p>
+                                <p class="text-gray-500 dark:text-gray-400 text-base font-normal leading-normal">Get help with AcademiaTrack and find answers to common questions.</p>
+                            </div>
+                        </div>
+
+                        <!-- Quick Help Cards -->
+                        <div class="px-4">
+                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+                                <a href="#getting-started" class="bg-white dark:bg-gray-800 rounded-lg p-6 text-center border border-gray-200 dark:border-gray-700 hover:border-primary dark:hover:border-primary transition-colors cursor-pointer group">
+                                    <div class="flex items-center justify-center size-12 rounded-full bg-primary/10 dark:bg-primary/20 text-primary mx-auto mb-3 group-hover:bg-primary/20 transition-colors">
+                                        <span class="material-symbols-outlined text-2xl">rocket_launch</span>
+                                    </div>
+                                    <h3 class="font-bold text-gray-800 dark:text-gray-200 mb-2">Getting Started</h3>
+                                    <p class="text-gray-600 dark:text-gray-400 text-sm">New to AcademiaTrack? Start here</p>
+                                </a>
+                                <a href="#account-management" class="bg-white dark:bg-gray-800 rounded-lg p-6 text-center border border-gray-200 dark:border-gray-700 hover:border-primary dark:hover:border-primary transition-colors cursor-pointer group">
+                                    <div class="flex items-center justify-center size-12 rounded-full bg-primary/10 dark:bg-primary/20 text-primary mx-auto mb-3 group-hover:bg-primary/20 transition-colors">
+                                        <span class="material-symbols-outlined text-2xl">person</span>
+                                    </div>
+                                    <h3 class="font-bold text-gray-800 dark:text-gray-200 mb-2">Account & Profile</h3>
+                                    <p class="text-gray-600 dark:text-gray-400 text-sm">Manage your account settings</p>
+                                </a>
+                                <a href="#academic-tracking" class="bg-white dark:bg-gray-800 rounded-lg p-6 text-center border border-gray-200 dark:border-gray-700 hover:border-primary dark:hover:border-primary transition-colors cursor-pointer group">
+                                    <div class="flex items-center justify-center size-12 rounded-full bg-primary/10 dark:bg-primary/20 text-primary mx-auto mb-3 group-hover:bg-primary/20 transition-colors">
+                                        <span class="material-symbols-outlined text-2xl">school</span>
+                                    </div>
+                                    <h3 class="font-bold text-gray-800 dark:text-gray-200 mb-2">Academic Tracking</h3>
+                                    <p class="text-gray-600 dark:text-gray-400 text-sm">Track courses, grades & progress</p>
+                                </a>
+                                <a href="#troubleshooting" class="bg-white dark:bg-gray-800 rounded-lg p-6 text-center border border-gray-200 dark:border-gray-700 hover:border-primary dark:hover:border-primary transition-colors cursor-pointer group">
+                                    <div class="flex items-center justify-center size-12 rounded-full bg-primary/10 dark:bg-primary/20 text-primary mx-auto mb-3 group-hover:bg-primary/20 transition-colors">
+                                        <span class="material-symbols-outlined text-2xl">support_agent</span>
+                                    </div>
+                                    <h3 class="font-bold text-gray-800 dark:text-gray-200 mb-2">Troubleshooting</h3>
+                                    <p class="text-gray-600 dark:text-gray-400 text-sm">Common issues and solutions</p>
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- Main Content -->
+                        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 px-4">
+                            <!-- Left Column: FAQ Sections -->
+                            <div class="lg:col-span-2 flex flex-col gap-8">
+                                <!-- Getting Started Section -->
+                                <section id="getting-started" class="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700 shadow-sm fade-in">
+                                    <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-3">
+                                        <span class="material-symbols-outlined text-primary">rocket_launch</span>
+                                        Getting Started
+                                    </h2>
+                                    
+                                    <div class="space-y-4">
+                                        <div class="faq-item pb-4">
+                                            <button class="faq-question w-full text-left flex justify-between items-center py-3 font-semibold text-gray-800 dark:text-gray-200 hover:text-primary dark:hover:text-primary transition-colors">
+                                                <span>How do I create my account?</span>
+                                                <span class="material-symbols-outlined text-gray-400 transition-transform">expand_more</span>
+                                            </button>
+                                            <div class="faq-answer pl-2">
+                                                <p class="text-gray-600 dark:text-gray-400 pb-3">
+                                                    To create your AcademiaTrack account:
+                                                </p>
+                                                <ol class="list-decimal list-inside space-y-2 text-gray-600 dark:text-gray-400">
+                                                    <li>Click "Sign Up" on the login page</li>
+                                                    <li>Fill in your personal information (name, university, department)</li>
+                                                    <li>Select your academic level (100-500 level)</li>
+                                                    <li>Enter your email address and create a password</li>
+                                                    <li>Verify your email address with the code sent to you</li>
+                                                    <li>Start adding your academic information!</li>
+                                                </ol>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="faq-item pb-4">
+                                            <button class="faq-question w-full text-left flex justify-between items-center py-3 font-semibold text-gray-800 dark:text-gray-200 hover:text-primary dark:hover:text-primary transition-colors">
+                                                <span>How do I add my first semester?</span>
+                                                <span class="material-symbols-outlined text-gray-400 transition-transform">expand_more</span>
+                                            </button>
+                                            <div class="faq-answer pl-2">
+                                                <p class="text-gray-600 dark:text-gray-400 pb-3">
+                                                    To add your first semester:
+                                                </p>
+                                                <ol class="list-decimal list-inside space-y-2 text-gray-600 dark:text-gray-400">
+                                                    <li>Go to the Progress page from the navigation menu</li>
+                                                    <li>Click "Add New Semester"</li>
+                                                    <li>Select your level (100, 200, 300, etc.)</li>
+                                                    <li>Choose the semester type (First or Second)</li>
+                                                    <li>Enter the academic year</li>
+                                                    <li>Start adding courses to your semester</li>
+                                                </ol>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="faq-item pb-4">
+                                            <button class="faq-question w-full text-left flex justify-between items-center py-3 font-semibold text-gray-800 dark:text-gray-200 hover:text-primary dark:hover:text-primary transition-colors">
+                                                <span>What information do I need to track my progress?</span>
+                                                <span class="material-symbols-outlined text-gray-400 transition-transform">expand_more</span>
+                                            </button>
+                                            <div class="faq-answer pl-2">
+                                                <p class="text-gray-600 dark:text-gray-400">
+                                                    To effectively track your academic progress, you'll need:
+                                                </p>
+                                                <ul class="list-disc list-inside space-y-2 mt-2 text-gray-600 dark:text-gray-400">
+                                                    <li>Course titles and codes</li>
+                                                    <li>Credit units for each course</li>
+                                                    <li>Grades received (A, B, C, D, E, F)</li>
+                                                    <li>Semester information (level, type, year)</li>
+                                                    <li>Academic activities and deadlines</li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </section>
+
+                                <!-- Account Management Section -->
+                                <section id="account-management" class="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700 shadow-sm fade-in">
+                                    <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-3">
+                                        <span class="material-symbols-outlined text-primary">person</span>
+                                        Account & Profile Management
+                                    </h2>
+                                    
+                                    <div class="space-y-4">
+                                        <div class="faq-item pb-4">
+                                            <button class="faq-question w-full text-left flex justify-between items-center py-3 font-semibold text-gray-800 dark:text-gray-200 hover:text-primary dark:hover:text-primary transition-colors">
+                                                <span>How do I update my profile information?</span>
+                                                <span class="material-symbols-outlined text-gray-400 transition-transform">expand_more</span>
+                                            </button>
+                                            <div class="faq-answer pl-2">
+                                                <p class="text-gray-600 dark:text-gray-400 pb-3">
+                                                    To update your profile:
+                                                </p>
+                                                <ol class="list-decimal list-inside space-y-2 text-gray-600 dark:text-gray-400">
+                                                    <li>Navigate to the Profile page from the main menu</li>
+                                                    <li>Click the "Edit Profile" button</li>
+                                                    <li>Update your personal information (name, university, department)</li>
+                                                    <li>Change your academic level if needed</li>
+                                                    <li>Save your changes</li>
+                                                </ol>
+                                                <p class="text-gray-600 dark:text-gray-400 mt-3">
+                                                    Note: Some information like email may require verification.
+                                                </p>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="faq-item pb-4">
+                                            <button class="faq-question w-full text-left flex justify-between items-center py-3 font-semibold text-gray-800 dark:text-gray-200 hover:text-primary dark:hover:text-primary transition-colors">
+                                                <span>I forgot my password. How do I reset it?</span>
+                                                <span class="material-symbols-outlined text-gray-400 transition-transform">expand_more</span>
+                                            </button>
+                                            <div class="faq-answer pl-2">
+                                                <p class="text-gray-600 dark:text-gray-400 pb-3">
+                                                    To reset your password:
+                                                </p>
+                                                <ol class="list-decimal list-inside space-y-2 text-gray-600 dark:text-gray-400">
+                                                    <li>Go to the login page</li>
+                                                    <li>Click "Forgot Password?" below the password field</li>
+                                                    <li>Enter your email address</li>
+                                                    <li>Check your email for a verification code</li>
+                                                    <li>Enter the code and create a new password</li>
+                                                    <li>Log in with your new password</li>
+                                                </ol>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="faq-item pb-4">
+                                            <button class="faq-question w-full text-left flex justify-between items-center py-3 font-semibold text-gray-800 dark:text-gray-200 hover:text-primary dark:hover:text-primary transition-colors">
+                                                <span>How do I delete my account?</span>
+                                                <span class="material-symbols-outlined text-gray-400 transition-transform">expand_more</span>
+                                            </button>
+                                            <div class="faq-answer pl-2">
+                                                <p class="text-gray-600 dark:text-gray-400">
+                                                    To delete your AcademiaTrack account:
+                                                </p>
+                                                <ol class="list-decimal list-inside space-y-2 mt-2 text-gray-600 dark:text-gray-400">
+                                                    <li>Go to your Profile page</li>
+                                                    <li>Scroll to the bottom and click "Account Settings"</li>
+                                                    <li>Select "Delete Account"</li>
+                                                    <li>Confirm your decision by entering your password</li>
+                                                    <li>Note: This action is permanent and cannot be undone</li>
+                                                </ol>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </section>
+
+                                <!-- Academic Tracking Section -->
+                                <section id="academic-tracking" class="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700 shadow-sm fade-in">
+                                    <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-3">
+                                        <span class="material-symbols-outlined text-primary">school</span>
+                                        Academic Tracking & Progress
+                                    </h2>
+                                    
+                                    <div class="space-y-4">
+                                        <div class="faq-item pb-4">
+                                            <button class="faq-question w-full text-left flex justify-between items-center py-3 font-semibold text-gray-800 dark:text-gray-200 hover:text-primary dark:hover:text-primary transition-colors">
+                                                <span>How is my CGPA calculated?</span>
+                                                <span class="material-symbols-outlined text-gray-400 transition-transform">expand_more</span>
+                                            </button>
+                                            <div class="faq-answer pl-2">
+                                                <p class="text-gray-600 dark:text-gray-400 pb-3">
+                                                    Your CGPA is calculated using the Nigerian 5.0 grading scale:
+                                                </p>
+                                                <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 mb-3">
+                                                    <table class="w-full text-sm">
+                                                        <thead>
+                                                            <tr class="border-b border-gray-200 dark:border-gray-600">
+                                                                <th class="text-left py-2 font-semibold">Grade</th>
+                                                                <th class="text-left py-2 font-semibold">Points</th>
+                                                                <th class="text-left py-2 font-semibold">Description</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            <tr class="border-b border-gray-200 dark:border-gray-600">
+                                                                <td class="py-2">A</td>
+                                                                <td class="py-2">5.0</td>
+                                                                <td class="py-2">Excellent</td>
+                                                            </tr>
+                                                            <tr class="border-b border-gray-200 dark:border-gray-600">
+                                                                <td class="py-2">B</td>
+                                                                <td class="py-2">4.0</td>
+                                                                <td class="py-2">Very Good</td>
+                                                            </tr>
+                                                            <tr class="border-b border-gray-200 dark:border-gray-600">
+                                                                <td class="py-2">C</td>
+                                                                <td class="py-2">3.0</td>
+                                                                <td class="py-2">Good</td>
+                                                            </tr>
+                                                            <tr class="border-b border-gray-200 dark:border-gray-600">
+                                                                <td class="py-2">D</td>
+                                                                <td class="py-2">2.0</td>
+                                                                <td class="py-2">Fair</td>
+                                                            </tr>
+                                                            <tr class="border-b border-gray-200 dark:border-gray-600">
+                                                                <td class="py-2">E</td>
+                                                                <td class="py-2">1.0</td>
+                                                                <td class="py-2">Poor</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td class="py-2">F</td>
+                                                                <td class="py-2">0.0</td>
+                                                                <td class="py-2">Fail</td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                                <p class="text-gray-600 dark:text-gray-400">
+                                                    CGPA = Total Grade Points ÷ Total Credit Units
+                                                </p>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="faq-item pb-4">
+                                            <button class="faq-question w-full text-left flex justify-between items-center py-3 font-semibold text-gray-800 dark:text-gray-200 hover:text-primary dark:hover:text-primary transition-colors">
+                                                <span>How do I add courses and grades?</span>
+                                                <span class="material-symbols-outlined text-gray-400 transition-transform">expand_more</span>
+                                            </button>
+                                            <div class="faq-answer pl-2">
+                                                <p class="text-gray-600 dark:text-gray-400 pb-3">
+                                                    To add courses and grades to a semester:
+                                                </p>
+                                                <ol class="list-decimal list-inside space-y-2 text-gray-600 dark:text-gray-400">
+                                                    <li>Go to the Progress page</li>
+                                                    <li>Select the semester you want to add courses to</li>
+                                                    <li>Click "Add Course"</li>
+                                                    <li>Enter the course title and code</li>
+                                                    <li>Specify the credit units</li>
+                                                    <li>Select the grade received (or leave blank if pending)</li>
+                                                    <li>Save the course</li>
+                                                </ol>
+                                                <p class="text-gray-600 dark:text-gray-400 mt-3">
+                                                    Your CGPA will automatically update as you add grades.
+                                                </p>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="faq-item pb-4">
+                                            <button class="faq-question w-full text-left flex justify-between items-center py-3 font-semibold text-gray-800 dark:text-gray-200 hover:text-primary dark:hover:text-primary transition-colors">
+                                                <span>How do I track my academic activities?</span>
+                                                <span class="material-symbols-outlined text-gray-400 transition-transform">expand_more</span>
+                                            </button>
+                                            <div class="faq-answer pl-2">
+                                                <p class="text-gray-600 dark:text-gray-400 pb-3">
+                                                    To track assignments, tests, and other activities:
+                                                </p>
+                                                <ol class="list-decimal list-inside space-y-2 text-gray-600 dark:text-gray-400">
+                                                    <li>Navigate to the Activities page</li>
+                                                    <li>Click "Add Activity"</li>
+                                                    <li>Select the activity type (Assignment, Test, Practical, Exam)</li>
+                                                    <li>Enter the activity name and description</li>
+                                                    <li>Select the associated course (if any)</li>
+                                                    <li>Set the due date and priority level</li>
+                                                    <li>Save the activity</li>
+                                                </ol>
+                                                <p class="text-gray-600 dark:text-gray-400 mt-3">
+                                                    Upcoming deadlines will appear on your dashboard.
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </section>
+
+                                <!-- Troubleshooting Section -->
+                                <section id="troubleshooting" class="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700 shadow-sm fade-in">
+                                    <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-3">
+                                        <span class="material-symbols-outlined text-primary">support_agent</span>
+                                        Troubleshooting
+                                    </h2>
+                                    
+                                    <div class="space-y-4">
+                                        <div class="faq-item pb-4">
+                                            <button class="faq-question w-full text-left flex justify-between items-center py-3 font-semibold text-gray-800 dark:text-gray-200 hover:text-primary dark:hover:text-primary transition-colors">
+                                                <span>I'm not receiving verification emails</span>
+                                                <span class="material-symbols-outlined text-gray-400 transition-transform">expand_more</span>
+                                            </button>
+                                            <div class="faq-answer pl-2">
+                                                <p class="text-gray-600 dark:text-gray-400 pb-3">
+                                                    If you're not receiving verification emails:
+                                                </p>
+                                                <ul class="list-disc list-inside space-y-2 text-gray-600 dark:text-gray-400">
+                                                    <li>Check your spam or junk folder</li>
+                                                    <li>Ensure you entered the correct email address</li>
+                                                    <li>Wait a few minutes - emails can sometimes be delayed</li>
+                                                    <li>Try requesting a new verification code</li>
+                                                    <li>If using Gmail, check the "Promotions" tab</li>
+                                                    <li>Contact support if the issue persists</li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="faq-item pb-4">
+                                            <button class="faq-question w-full text-left flex justify-between items-center py-3 font-semibold text-gray-800 dark:text-gray-200 hover:text-primary dark:hover:text-primary transition-colors">
+                                                <span>My data isn't saving properly</span>
+                                                <span class="material-symbols-outlined text-gray-400 transition-transform">expand_more</span>
+                                            </button>
+                                            <div class="faq-answer pl-2">
+                                                <p class="text-gray-600 dark:text-gray-400 pb-3">
+                                                    If your data isn't saving:
+                                                </p>
+                                                <ul class="list-disc list-inside space-y-2 text-gray-600 dark:text-gray-400">
+                                                    <li>Ensure you have a stable internet connection</li>
+                                                    <li>Check if you're logged into your account</li>
+                                                    <li>Refresh the page and try again</li>
+                                                    <li>Clear your browser cache and cookies</li>
+                                                    <li>Try using a different browser</li>
+                                                    <li>Make sure you click "Save" after making changes</li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="faq-item pb-4">
+                                            <button class="faq-question w-full text-left flex justify-between items-center py-3 font-semibold text-gray-800 dark:text-gray-200 hover:text-primary dark:hover:text-primary transition-colors">
+                                                <span>I can't log in to my account</span>
+                                                <span class="material-symbols-outlined text-gray-400 transition-transform">expand_more</span>
+                                            </button>
+                                            <div class="faq-answer pl-2">
+                                                <p class="text-gray-600 dark:text-gray-400 pb-3">
+                                                    If you're having trouble logging in:
+                                                </p>
+                                                <ul class="list-disc list-inside space-y-2 text-gray-600 dark:text-gray-400">
+                                                    <li>Double-check your email and password</li>
+                                                    <li>Use the "Forgot Password" feature to reset your password</li>
+                                                    <li>Ensure your caps lock is turned off</li>
+                                                    <li>Clear your browser cache and cookies</li>
+                                                    <li>Try logging in from a different browser or device</li>
+                                                    <li>Contact support if you continue having issues</li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </section>
+                            </div>
+
+                            <!-- Right Column: Support Options -->
+                            <div class="lg:col-span-1 flex flex-col gap-6">
+                                <!-- Contact Support -->
+                                <div class="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700 shadow-sm">
+                                    <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                                        <span class="material-symbols-outlined text-primary">contact_support</span>
+                                        Contact Support
+                                    </h3>
+                                    <p class="text-gray-600 dark:text-gray-400 mb-4">
+                                        Still need help? Our support team is here for you.
+                                    </p>
+                                    <div class="space-y-3">
+                                        <div class="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                                            <span class="material-symbols-outlined text-primary">mail</span>
+                                            <div>
+                                                <p class="font-medium text-gray-800 dark:text-gray-200">Email Support</p>
+                                                <p class="text-sm text-gray-600 dark:text-gray-400">support@academiatrack.com</p>
+                                            </div>
+                                        </div>
+                                        <div class="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                                            <span class="material-symbols-outlined text-primary">forum</span>
+                                            <div>
+                                                <p class="font-medium text-gray-800 dark:text-gray-200">Live Chat</p>
+                                                <p class="text-sm text-gray-600 dark:text-gray-400">Available 9AM-6PM WAT</p>
+                                            </div>
+                                        </div>
+                                        <div class="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                                            <span class="material-symbols-outlined text-primary">help</span>
+                                            <div>
+                                                <p class="font-medium text-gray-800 dark:text-gray-200">FAQ Database</p>
+                                                <p class="text-sm text-gray-600 dark:text-gray-400">Browse common questions</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Quick Tips -->
+                                <div class="bg-primary/5 dark:bg-primary/10 rounded-xl p-6 border border-primary/20">
+                                    <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                                        <span class="material-symbols-outlined text-primary">lightbulb</span>
+                                        Quick Tips
+                                    </h3>
+                                    <ul class="space-y-3 text-gray-600 dark:text-gray-400">
+                                        <li class="flex items-start gap-2">
+                                            <span class="material-symbols-outlined text-primary text-sm mt-0.5">check_circle</span>
+                                            <span>Keep your grades updated regularly for accurate CGPA tracking</span>
+                                        </li>
+                                        <li class="flex items-start gap-2">
+                                            <span class="material-symbols-outlined text-primary text-sm mt-0.5">check_circle</span>
+                                            <span>Set reminders for important academic deadlines</span>
+                                        </li>
+                                        <li class="flex items-start gap-2">
+                                            <span class="material-symbols-outlined text-primary text-sm mt-0.5">check_circle</span>
+                                            <span>Use the progress tracker to monitor your degree completion</span>
+                                        </li>
+                                        <li class="flex items-start gap-2">
+                                            <span class="material-symbols-outlined text-primary text-sm mt-0.5">check_circle</span>
+                                            <span>Back up your data regularly</span>
+                                        </li>
+                                    </ul>
+                                </div>
+
+                                <!-- Video Tutorials -->
+                                <div class="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700 shadow-sm">
+                                    <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                                        <span class="material-symbols-outlined text-primary">play_circle</span>
+                                        Video Tutorials
+                                    </h3>
+                                    <div class="space-y-3">
+                                        <a href="#" class="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors group">
+                                            <span class="material-symbols-outlined text-primary group-hover:scale-110 transition-transform">play_arrow</span>
+                                            <div>
+                                                <p class="font-medium text-gray-800 dark:text-gray-200">Getting Started Guide</p>
+                                                <p class="text-sm text-gray-600 dark:text-gray-400">5 min watch</p>
+                                            </div>
+                                        </a>
+                                        <a href="#" class="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors group">
+                                            <span class="material-symbols-outlined text-primary group-hover:scale-110 transition-transform">play_arrow</span>
+                                            <div>
+                                                <p class="font-medium text-gray-800 dark:text-gray-200">Grade Tracking Tutorial</p>
+                                                <p class="text-sm text-gray-600 dark:text-gray-400">8 min watch</p>
+                                            </div>
+                                        </a>
+                                        <a href="#" class="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors group">
+                                            <span class="material-symbols-outlined text-primary group-hover:scale-110 transition-transform">play_arrow</span>
+                                            <div>
+                                                <p class="font-medium text-gray-800 dark:text-gray-200">Activity Management</p>
+                                                <p class="text-sm text-gray-600 dark:text-gray-400">6 min watch</p>
+                                            </div>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </main>
+
+                    <!-- Footer -->
+                    <footer class="w-full mt-16 border-t border-gray-200 dark:border-gray-700 pt-8 pb-12">
+                        <div class="flex flex-col sm:flex-row items-center justify-between gap-4 px-4">
+                            <div class="flex items-center gap-4 text-gray-900 dark:text-white mb-4 sm:mb-0">
+                                <div class="size-6 text-primary">
+                                    <svg fill="currentColor" viewbox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+                                        <g clip-path="url(#clip0_6_330)">
+                                            <path clip-rule="evenodd" d="M24 0.757355L47.2426 24L24 47.2426L0.757355 24L24 0.757355ZM21 35.7574V12.2426L9.24264 24L21 35.7574Z" fill="currentColor" fill-rule="evenodd"></path>
+                                        </g>
+                                    </svg>
+                                </div>
+                                <h3 class="text-lg font-bold">AcademiaTrack</h3>
+                            </div>
+                            <div class="flex flex-col sm:flex-row items-center gap-6 text-sm">
+                                <div class="flex items-center gap-6 mb-4 sm:mb-0">
+                                    <a class="text-gray-500 dark:text-gray-400 hover:text-primary dark:hover:text-primary" href="homepage.html">Dashboard</a>
+                                    <a class="text-gray-500 dark:text-gray-400 hover:text-primary dark:hover:text-primary" href="progresspage.html">Progress</a>
+                                    <a class="text-gray-500 dark:text-gray-400 hover:text-primary dark:hover:text-primary" href="activitiespage.html">Activities</a>
+                                </div>
+                                <div class="flex items-center gap-6">
+                                    <a class="text-gray-500 dark:text-gray-400 hover:text-primary dark:hover:text-primary" href="profile-page.html">Profile</a>
+                                    <a class="text-primary font-medium" href="help-page.html">Help</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="text-center mt-6">
+                            <p class="text-gray-500 dark:text-gray-400 text-sm">© 2025 AcademiaTrack. Tracking success for <span id="footer-user-name" class="font-medium">students</span>.</p>
+                        </div>
+                    </footer>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Mobile menu functionality
+        const menuToggle = document.getElementById('menu-toggle');
+        const mobileMenu = document.getElementById('mobile-menu');
+        const menuOverlay = document.getElementById('menu-overlay');
+
+        function toggleMenu() {
+            mobileMenu.classList.toggle('open');
+            menuOverlay.classList.toggle('open');
+            document.body.style.overflow = mobileMenu.classList.contains('open') ? 'hidden' : '';
+        }
+
+        menuToggle.addEventListener('click', toggleMenu);
+        menuOverlay.addEventListener('click', toggleMenu);
+
+        // Close menu when clicking on links
+        const menuLinks = document.querySelectorAll('#mobile-menu a');
+        menuLinks.forEach(link => {
+            link.addEventListener('click', () => {
+                mobileMenu.classList.remove('open');
+                menuOverlay.classList.remove('open');
+                document.body.style.overflow = '';
+            });
+        });
+
+        // Logout functionality
+        document.getElementById('mobile-logout').addEventListener('click', function() {
+            localStorage.removeItem('academiatrack_current_user');
+            window.location.href = 'login-page.html';
+        });
+
+        // FAQ functionality
+        document.querySelectorAll('.faq-question').forEach(button => {
+            button.addEventListener('click', function() {
+                const answer = this.nextElementSibling;
+                const icon = this.querySelector('.material-symbols-outlined');
+                
+                // Toggle current FAQ
+                answer.classList.toggle('open');
+                icon.style.transform = answer.classList.contains('open') ? 'rotate(180deg)' : 'rotate(0deg)';
+                
+                // Close other FAQs
+                document.querySelectorAll('.faq-answer').forEach(otherAnswer => {
+                    if (otherAnswer !== answer && otherAnswer.classList.contains('open')) {
+                        otherAnswer.classList.remove('open');
+                        const otherIcon = otherAnswer.previousElementSibling.querySelector('.material-symbols-outlined');
+                        otherIcon.style.transform = 'rotate(0deg)';
+                    }
+                });
+            });
+        });
+
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // User data initialization
+        let currentUser = null;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            currentUser = JSON.parse(localStorage.getItem('academiatrack_current_user'));
+            
+            if (!currentUser) {
+                // Redirect to login if no user is logged in
+                window.location.href = 'login-page.html';
+                return;
+            }
+
+            // Update user information
+            document.getElementById('user-name').textContent = currentUser.fullName;
+            document.getElementById('footer-user-name').textContent = currentUser.fullName.split(' ')[0];
+            
+            // Update profile image if available
+            if (currentUser.profileImage) {
+                document.getElementById('profile-image').style.backgroundImage = `url(${currentUser.profileImage})`;
+            } else {
+                document.getElementById('profile-image').style.backgroundImage = 'url("https://lh3.googleusercontent.com/aida-public/AB6AXuDmQOamLXW64I-sbmtjVzpU57DtK7XPIXvTqC8HKueihXloX4oEb1jqN2tspylb1QJVhILrLsT3Oz-JCpgiY5BvVlApewNT0DR3pu_j14DiyvTjZ5lKbSIsMcUwK2Ow0wZl0LEtGXfVCPtl_qKOmui63jcIIIjL1cSMJLXwzteqsL9w3rFnVYYUsXjnnkbBDuof613ZJjhmAej0X2PtZ2-nTQFtCNZ16vrgnnsfc2gxrnehVCT-3dLqgOYwNo52FQzFpITa-MfdWAQ")';
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Create Your Student Account - AcademiaTrack</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="firebase-config.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
+    <script>
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "primary": "#4A90E2",
+              "background-light": "#F8F9FA",
+              "background-dark": "#101622",
+              "card-light": "#FFFFFF",
+              "card-dark": "#18202F",
+              "text-light": "#333333",
+              "text-dark": "#E0E0E0",
+              "border-light": "#CED4DA",
+              "border-dark": "#4A5568",
+              "placeholder-light": "#6c757d",
+              "placeholder-dark": "#A0AEC0",
+              "success": "#10B981",
+              "error": "#EF4444",
+              "warning": "#F59E0B"
+            },
+            fontFamily: {
+              "display": ["Lexend", "sans-serif"]
+            },
+            borderRadius: {
+                "DEFAULT": "0.25rem",
+                "lg": "0.75rem",
+                "xl": "1rem",
+                "full": "9999px"
+            },
+          },
+        },
+      }
+    </script>
+    <style>
+      .form-input {
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        appearance: none;
+        background-repeat: no-repeat;
+        background-position: right 0.75rem center;
+        background-size: 1.5em 1.5em;
+      }
+      select.form-input {
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+      }
+      html.dark select.form-input {
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23A0AEC0' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+      }
+      .password-input-wrapper {
+        position: relative;
+        display: flex;
+        align-items: center;
+      }
+      .password-input-wrapper input {
+        padding-right: 2.75rem;
+      }
+      .password-input-wrapper .toggle-password {
+        position: absolute;
+        right: 0.75rem;
+        cursor: pointer;
+      }
+      
+      /* Toast notification styles */
+      .toast {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 12px 20px;
+        border-radius: 8px;
+        color: white;
+        font-weight: 500;
+        z-index: 1000;
+        transform: translateX(400px);
+        transition: transform 0.3s ease-in-out;
+      }
+      
+      .toast.show {
+        transform: translateX(0);
+      }
+      
+      .toast.success {
+        background-color: #10B981;
+      }
+      
+      .toast.error {
+        background-color: #EF4444;
+      }
+      
+      .toast.warning {
+        background-color: #F59E0B;
+      }
+      
+      /* Loading spinner */
+      .spinner {
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        border-radius: 50%;
+        border-top: 2px solid white;
+        width: 16px;
+        height: 16px;
+        animation: spin 1s linear infinite;
+        display: inline-block;
+        margin-right: 8px;
+      }
+      
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+      
+      /* Modal styles */
+      .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 1001;
+        align-items: center;
+        justify-content: center;
+      }
+      
+      .modal.show {
+        display: flex;
+      }
+      
+      .modal-content {
+        background-color: white;
+        border-radius: 12px;
+        padding: 24px;
+        width: 90%;
+        max-width: 400px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+      }
+      
+      .dark .modal-content {
+        background-color: #18202F;
+        color: #E0E0E0;
+      }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-text-light dark:text-text-dark">
+    <!-- Toast Notification -->
+    <div id="toast" class="toast" aria-live="polite" aria-atomic="true"></div>
+
+    <!-- Verification Modal -->
+    <div id="verification-modal" class="modal">
+        <div class="modal-content">
+            <div class="text-center">
+                <h3 class="text-xl font-bold mb-2">Verify Your Email</h3>
+                <p class="text-placeholder-light dark:text-placeholder-dark mb-4">
+                    We've sent a verification email to <span id="verification-email" class="font-medium"></span>
+                </p>
+                <p class="text-sm text-placeholder-light dark:text-placeholder-dark mb-4">
+                    Please check your email and click the verification link to activate your account.
+                </p>
+                
+                <div class="flex justify-between mt-6">
+                    <button id="resend-verification" class="text-primary hover:text-primary/80 font-medium text-sm">
+                        Resend Verification
+                    </button>
+                    <button id="check-verified" class="bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary/90 transition">
+                        I've Verified My Email
+                    </button>
+                </div>
+                
+                <p class="text-xs text-placeholder-light dark:text-placeholder-dark mt-4">
+                    Didn't receive the email? Check your spam folder.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="relative flex min-h-screen w-full flex-col items-center justify-center p-4">
+        <main class="w-full max-w-lg rounded-xl bg-card-light dark:bg-card-dark shadow-lg">
+            <div class="p-8 md:p-12">
+                <header class="text-center mb-8">
+                    <div class="inline-flex items-center justify-center gap-2 mb-2">
+                        <div class="size-6 text-primary">
+                            <svg fill="currentColor" viewbox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+                                <g clip-path="url(#clip0_6_330)">
+                                    <path clip-rule="evenodd" d="M24 0.757355L47.2426 24L24 47.2426L0.757355 24L24 0.757355ZM21 35.7574V12.2426L9.24264 24L21 35.7574Z" fill="currentColor" fill-rule="evenodd"></path>
+                                </g>
+                                <defs>
+                                    <clippath id="clip0_6_330"><rect fill="white" height="48" width="48"></rect></clippath>
+                                </defs>
+                            </svg>
+                        </div>
+                        <h1 class="text-2xl font-bold text-text-light dark:text-text-dark">AcademiaTrack</h1>
+                    </div>
+                    <h2 class="text-3xl font-bold tracking-tight text-text-light dark:text-text-dark">Create Your Student Account</h2>
+                </header>
+                
+                <form id="signup-form" class="space-y-6" novalidate>
+                    <div>
+                        <label class="block text-sm font-medium leading-6 pb-2" for="full-name">Full Name</label>
+                        <input class="form-input block w-full rounded-lg border-0 bg-background-light dark:bg-background-dark p-4 text-text-light dark:text-text-dark placeholder:text-placeholder-light dark:placeholder:text-placeholder-dark ring-1 ring-inset ring-border-light dark:ring-border-dark focus:ring-2 focus:ring-inset focus:ring-primary transition" id="full-name" name="full-name" placeholder="Enter your full name" type="text" required aria-describedby="name-error"/>
+                        <div id="name-error" class="mt-2 text-xs text-error hidden">Please enter your full name</div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 gap-x-6 gap-y-6 sm:grid-cols-2">
+                        <div>
+                            <label class="block text-sm font-medium leading-6 pb-2" for="university">University</label>
+                            <select class="form-input block w-full rounded-lg border-0 bg-background-light dark:bg-background-dark p-4 text-text-light dark:text-text-dark ring-1 ring-inset ring-border-light dark:ring-border-dark focus:ring-2 focus:ring-inset focus:ring-primary transition" id="university" name="university" required aria-describedby="university-error">
+                                <option value="">Select your university</option>
+                                <option>Federal University of Technology, Owerri</option>
+                                <option>Imo State University, Nekede</option>
+                                <option>University of Nigeria, Nsukka</option>
+                                <option>Abia State University, Uturu</option>
+                                <option>Other</option>
+                            </select>
+                            <div id="university-error" class="mt-2 text-xs text-error hidden">Please select your university</div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium leading-6 pb-2" for="department">Department</label>
+                            <select class="form-input block w-full rounded-lg border-0 bg-background-light dark:bg-background-dark p-4 text-text-light dark:text-text-dark ring-1 ring-inset ring-border-light dark:ring-border-dark focus:ring-2 focus:ring-inset focus:ring-primary transition" id="department" name="department" required aria-describedby="department-error">
+                                <option value="">Select your department</option>
+                                <option>Computer Science</option>
+                                <option>Software Engineering</option>
+                                <option>Cyber Security</option>
+                                <option>Information Technology</option>
+                                <option>Other</option>
+                            </select>
+                            <div id="department-error" class="mt-2 text-xs text-error hidden">Please select your department</div>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium leading-6 pb-2" for="academic-level">Academic Level</label>
+                        <select class="form-input block w-full rounded-lg border-0 bg-background-light dark:bg-background-dark p-4 text-text-light dark:text-text-dark ring-1 ring-inset ring-border-light dark:ring-border-dark focus:ring-2 focus:ring-inset focus:ring-primary transition" id="academic-level" name="academic-level" required aria-describedby="level-error">
+                            <option value="">Select your level</option>
+                            <option value="100">100 Level</option>
+                            <option value="200">200 Level</option>
+                            <option value="300">300 Level</option>
+                            <option value="400">400 Level</option>
+                            <option value="500">500 Level</option>
+                        </select>
+                        <div id="level-error" class="mt-2 text-xs text-error hidden">Please select your academic level</div>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium leading-6 pb-2" for="email">Email Address</label>
+                        <input autocomplete="email" class="form-input block w-full rounded-lg border-0 bg-background-light dark:bg-background-dark p-4 text-text-light dark:text-text-dark placeholder:text-placeholder-light dark:placeholder:text-placeholder-dark ring-1 ring-inset ring-border-light dark:ring-border-dark focus:ring-2 focus:ring-inset focus:ring-primary transition" id="email" name="email" placeholder="you@example.com" type="email" required aria-describedby="email-error"/>
+                        <div id="email-error" class="mt-2 text-xs text-error hidden">Please enter a valid email address</div>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium leading-6 pb-2" for="password">Password</label>
+                        <div class="password-input-wrapper">
+                            <input autocomplete="new-password" class="form-input block w-full rounded-lg border-0 bg-background-light dark:bg-background-dark p-4 text-text-light dark:text-text-dark placeholder:text-placeholder-light dark:placeholder:text-placeholder-dark ring-1 ring-inset ring-border-light dark:ring-border-dark focus:ring-2 focus:ring-inset focus:ring-primary transition" id="password" name="password" placeholder="Enter your password" type="password" required minlength="8" aria-describedby="password-error"/>
+                            <span class="material-symbols-outlined toggle-password text-placeholder-light dark:text-placeholder-dark" role="button" tabindex="0" aria-label="Toggle password visibility">visibility_off</span>
+                        </div>
+                        <div id="password-error" class="mt-2 text-xs text-error hidden">Password must be at least 8 characters long</div>
+                        <p class="mt-2 text-xs text-placeholder-light dark:text-placeholder-dark">Must be at least 8 characters long.</p>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium leading-6 pb-2" for="confirm-password">Confirm Password</label>
+                        <div class="password-input-wrapper">
+                            <input autocomplete="new-password" class="form-input block w-full rounded-lg border-0 bg-background-light dark:bg-background-dark p-4 text-text-light dark:text-text-dark placeholder:text-placeholder-light dark:placeholder:text-placeholder-dark ring-1 ring-inset ring-border-light dark:ring-border-dark focus:ring-2 focus:ring-inset focus:ring-primary transition" id="confirm-password" name="confirm-password" placeholder="Confirm your password" type="password" required aria-describedby="confirm-error"/>
+                            <span class="material-symbols-outlined toggle-password text-placeholder-light dark:text-placeholder-dark" role="button" tabindex="0" aria-label="Toggle password visibility">visibility_off</span>
+                        </div>
+                        <div id="confirm-error" class="mt-2 text-xs text-error hidden">Passwords do not match</div>
+                        <p class="mt-2 text-xs text-placeholder-light dark:text-placeholder-dark">Must match first password.</p>
+                    </div>
+                    
+                    <div>
+                        <button class="flex w-full justify-center items-center rounded-lg bg-primary px-4 py-4 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-primary/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary transition disabled:opacity-50 disabled:cursor-not-allowed" type="submit" id="submit-btn">
+                            Create Account
+                        </button>
+                    </div>
+                </form>
+                
+                <div class="mt-8 text-center text-sm text-placeholder-light dark:text-placeholder-dark">
+                    <p>By signing up, you agree to our <a class="font-semibold text-primary hover:text-primary/80" href="Terms.html">Terms of Service</a>.</p>
+                    <p class="mt-2">
+                        Already have an account?
+                        <a class="font-semibold text-primary hover:text-primary/80" href="login-page.html">Log In</a>
+                    </p>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Toast notification function
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = `toast ${type} show`;
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        // Password visibility toggle
+        document.querySelectorAll('.toggle-password').forEach(toggle => {
+            toggle.addEventListener('click', function() {
+                togglePasswordVisibility(this);
+            });
+            
+            toggle.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    togglePasswordVisibility(this);
+                }
+            });
+        });
+        
+        function togglePasswordVisibility(toggleElement) {
+            const passwordInput = toggleElement.parentElement.querySelector('input');
+            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+            toggleElement.textContent = type === 'password' ? 'visibility_off' : 'visibility';
+            toggleElement.setAttribute('aria-label', type === 'password' ? 'Show password' : 'Hide password');
+        }
+
+        // Modal management
+        function showModal(modalId) {
+            document.getElementById(modalId).classList.add('show');
+        }
+
+        function hideModal(modalId) {
+            document.getElementById(modalId).classList.remove('show');
+        }
+
+        // Form validation
+        function validateForm() {
+            let isValid = true;
+            
+            // Reset error states
+            document.querySelectorAll('[id$="-error"]').forEach(el => {
+                el.classList.add('hidden');
+            });
+            
+            // Validate full name
+            const fullName = document.getElementById('full-name').value.trim();
+            if (!fullName) {
+                document.getElementById('name-error').classList.remove('hidden');
+                isValid = false;
+            }
+            
+            // Validate university
+            const university = document.getElementById('university').value;
+            if (!university) {
+                document.getElementById('university-error').classList.remove('hidden');
+                isValid = false;
+            }
+            
+            // Validate department
+            const department = document.getElementById('department').value;
+            if (!department) {
+                document.getElementById('department-error').classList.remove('hidden');
+                isValid = false;
+            }
+            
+            // Validate academic level
+            const level = document.getElementById('academic-level').value;
+            if (!level) {
+                document.getElementById('level-error').classList.remove('hidden');
+                isValid = false;
+            }
+            
+            // Validate email
+            const email = document.getElementById('email').value.trim();
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!email || !emailRegex.test(email)) {
+                document.getElementById('email-error').classList.remove('hidden');
+                isValid = false;
+            }
+            
+            // Validate password
+            const password = document.getElementById('password').value;
+            if (password.length < 8) {
+                document.getElementById('password-error').classList.remove('hidden');
+                isValid = false;
+            }
+            
+            // Validate password confirmation
+            const confirmPassword = document.getElementById('confirm-password').value;
+            if (password !== confirmPassword) {
+                document.getElementById('confirm-error').classList.remove('hidden');
+                isValid = false;
+            }
+            
+            return isValid;
+        }
+
+        // Form submission handler
+        document.getElementById('signup-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            if (!validateForm()) {
+                showToast('Please fix the errors in the form', 'error');
+                return;
+            }
+            
+            const submitBtn = document.getElementById('submit-btn');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<span class="spinner"></span> Creating Account...';
+            
+            // Get form values
+            const formData = {
+                fullName: document.getElementById('full-name').value.trim(),
+                university: document.getElementById('university').value,
+                department: document.getElementById('department').value,
+                level: document.getElementById('academic-level').value,
+                email: document.getElementById('email').value.trim(),
+                password: document.getElementById('password').value
+            };
+            
+            try {
+                // Create user with Firebase Auth
+                const userCredential = await firebaseUtils.signUp(formData.email, formData.password);
+                const user = userCredential.user;
+                
+                // Prepare user data for database
+                const userData = {
+                    id: user.uid,
+                    fullName: formData.fullName,
+                    university: formData.university,
+                    department: formData.department,
+                    level: formData.level,
+                    email: formData.email,
+                    createdAt: new Date().toISOString(),
+                    semesters: [],
+                    activities: [],
+                    profileImage: 'https://lh3.googleusercontent.com/aida-public/AB6AXuADXEIFKpmDI_nuQA0VU5QWeuV1OXE66OEphRMkNWgSnj75K_Ha5IdXSW94JooEV0riprXR2V8K5tgV269BrPwS6_QNOWRE5fsEr8OnpG7S37cMs7dioPWX7nokh1iWJtl4QFp0KNtQkIqoa53qYNJV2zd_CKGrBFWvXS7A_1DLVzL4TIWIFEXV5nV4qThK5hNHpZdLr112_DC3YyWL_TPXlyR-bGeRRknZzb2ilXbRP900Atw6Go80wga1albCpTAGTVoYV0f-uQo'
+                };
+                
+                // Save user data to Firebase Database
+                await firebaseUtils.saveUserData(user.uid, userData);
+                
+                // Send email verification
+                await firebaseUtils.sendEmailVerification();
+                
+                // Show verification modal
+                document.getElementById('verification-email').textContent = formData.email;
+                showModal('verification-modal');
+                showToast('Account created successfully! Please verify your email.', 'success');
+                
+            } catch (error) {
+                console.error('Signup error:', error);
+                let errorMessage = 'Failed to create account. ';
+                
+                switch (error.code) {
+                    case 'auth/email-already-in-use':
+                        errorMessage += 'An account with this email already exists.';
+                        break;
+                    case 'auth/invalid-email':
+                        errorMessage += 'The email address is invalid.';
+                        break;
+                    case 'auth/weak-password':
+                        errorMessage += 'The password is too weak.';
+                        break;
+                    default:
+                        errorMessage += error.message;
+                }
+                
+                showToast(errorMessage, 'error');
+            }
+            
+            // Reset submit button
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Create Account';
+        });
+
+        // Resend verification email
+        document.getElementById('resend-verification').addEventListener('click', async function() {
+            try {
+                await firebaseUtils.sendEmailVerification();
+                showToast('Verification email sent!', 'success');
+            } catch (error) {
+                showToast('Failed to resend verification email: ' + error.message, 'error');
+            }
+        });
+
+        // Check if email is verified
+        document.getElementById('check-verified').addEventListener('click', async function() {
+            try {
+                // Reload user to get latest email verification status
+                await auth.currentUser.reload();
+                const user = auth.currentUser;
+                
+                if (user.emailVerified) {
+                    // Email is verified, redirect to homepage
+                    showToast('Email verified successfully! Redirecting...', 'success');
+                    setTimeout(() => {
+                        window.location.href = 'homepage.html';
+                    }, 1500);
+                } else {
+                    showToast('Email not verified yet. Please check your inbox.', 'warning');
+                }
+            } catch (error) {
+                showToast('Error checking verification status: ' + error.message, 'error');
+            }
+        });
+
+        // Real-time password validation
+        document.getElementById('confirm-password').addEventListener('input', function() {
+            const password = document.getElementById('password').value;
+            const confirmPassword = this.value;
+            const errorDiv = document.getElementById('confirm-error');
+            const hint = this.parentElement.nextElementSibling;
+            
+            if (confirmPassword && password !== confirmPassword) {
+                errorDiv.classList.remove('hidden');
+                hint.textContent = 'Passwords do not match!';
+                hint.className = 'mt-2 text-xs text-error';
+            } else if (confirmPassword) {
+                errorDiv.classList.add('hidden');
+                hint.textContent = 'Passwords match!';
+                hint.className = 'mt-2 text-xs text-success';
+            } else {
+                errorDiv.classList.add('hidden');
+                hint.textContent = 'Must match first password.';
+                hint.className = 'mt-2 text-xs text-placeholder-light dark:text-placeholder-dark';
+            }
+        });
+
+        // Check if user is already logged in
+        document.addEventListener('DOMContentLoaded', function() {
+            firebaseUtils.getCurrentUser().then(user => {
+                if (user && user.emailVerified) {
+                    window.location.href = 'homepage.html';
+                }
+            });
+        });
+    </script>
+</body>
+</html>

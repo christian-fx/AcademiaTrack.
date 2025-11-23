@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Terms of Service - AcademiaTrack</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com" rel="preconnect"/>
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+    <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;700;900&amp;display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#135bec",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#101622",
+                        "success": "#10B981",
+                    },
+                    fontFamily: {
+                        "display": ["Lexend", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            font-size: 24px;
+        }
+        
+        /* Mobile Menu Styles */
+        .mobile-menu {
+            transform: translateX(-100%);
+            transition: transform 0.3s ease-in-out;
+        }
+        
+        .mobile-menu.open {
+            transform: translateX(0);
+        }
+        
+        .menu-overlay {
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease-in-out;
+        }
+        
+        .menu-overlay.open {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .terms-content h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+            color: #111827;
+        }
+        
+        .dark .terms-content h2 {
+            color: #f9fafb;
+        }
+        
+        .terms-content h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-top: 1.5rem;
+            margin-bottom: 0.75rem;
+            color: #374151;
+        }
+        
+        .dark .terms-content h3 {
+            color: #e5e7eb;
+        }
+        
+        .terms-content p {
+            margin-bottom: 1rem;
+            line-height: 1.6;
+        }
+        
+        .terms-content ul, .terms-content ol {
+            margin-bottom: 1rem;
+            padding-left: 1.5rem;
+        }
+        
+        .terms-content li {
+            margin-bottom: 0.5rem;
+            line-height: 1.6;
+        }
+        
+        .terms-content a {
+            color: #135bec;
+            text-decoration: underline;
+        }
+        
+        .dark .terms-content a {
+            color: #60a5fa;
+        }
+        
+        .terms-content a:hover {
+            opacity: 0.8;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-[#343A40] dark:text-gray-200">
+    <div class="relative flex min-h-screen w-full flex-col group/design-root overflow-x-hidden">
+        <div class="layout-container flex h-full grow flex-col">
+            <div class="px-4 sm:px-10 md:px-20 lg:px-40 flex flex-1 justify-center py-5">
+                <div class="layout-content-container flex flex-col max-w-[960px] flex-1">
+                    <!-- TopNavBar -->
+                    <header class="flex items-center justify-between whitespace-nowrap border-b border-solid border-gray-200 dark:border-gray-700 px-4 sm:px-10 py-3">
+                        <div class="flex items-center gap-4 text-gray-900 dark:text-white">
+                            <a href="index.html" class="flex items-center gap-4">
+                                <div class="size-6 text-primary">
+                                    <svg fill="none" viewbox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+                                        <g clip-path="url(#clip0_6_330)">
+                                            <path clip-rule="evenodd" d="M24 0.757355L47.2426 24L24 47.2426L0.757355 24L24 0.757355ZM21 35.7574V12.2426L9.24264 24L21 35.7574Z" fill="currentColor" fill-rule="evenodd"></path>
+                                        </g>
+                                    </svg>
+                                </div>
+                                <h2 class="text-lg font-bold leading-tight tracking-[-0.015em]">AcademiaTrack</h2>
+                            </a>
+                        </div>
+                        <div class="hidden md:flex flex-1 justify-end gap-8">
+                            <div class="flex items-center gap-9">
+                                <a class="text-sm font-medium leading-normal text-gray-800 dark:text-gray-300 hover:text-primary dark:hover:text-primary" href="index.html#features">Features</a>
+                                <a class="text-sm font-medium leading-normal text-gray-800 dark:text-gray-300 hover:text-primary dark:hover:text-primary" href="index.html#stats">Statistics</a>
+                                <a class="text-sm font-medium leading-normal text-gray-800 dark:text-gray-300 hover:text-primary dark:hover:text-primary" href="index.html#about">About</a>
+                            </div>
+                            <div class="flex gap-2" id="auth-buttons">
+                                <a href="signup-page.html" class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-primary text-white text-sm font-bold leading-normal tracking-[0.015em] hover:opacity-90 transition-opacity">
+                                    <span class="truncate">Sign Up</span>
+                                </a>
+                                <a href="login-page.html" class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-gray-200 text-sm font-bold leading-normal tracking-[0.015em] hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors">
+                                    <span class="truncate">Login</span>
+                                </a>
+                            </div>
+                            <div class="hidden gap-2" id="user-menu">
+                                <a href="homepage.html" class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-primary text-white text-sm font-bold leading-normal tracking-[0.015em] hover:opacity-90 transition-opacity">
+                                    <span class="truncate">Dashboard</span>
+                                </a>
+                                <button id="logout-btn" class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-gray-200 text-sm font-bold leading-normal tracking-[0.015em] hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors">
+                                    <span class="truncate">Logout</span>
+                                </button>
+                            </div>
+                        </div>
+                        <button id="menu-toggle" class="md:hidden p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800">
+                            <span class="material-symbols-outlined text-gray-800 dark:text-gray-200">menu</span>
+                        </button>
+                    </header>
+
+                    <!-- Mobile Menu -->
+                    <div id="mobile-menu" class="mobile-menu fixed top-0 left-0 h-full w-64 bg-white dark:bg-gray-800 shadow-lg z-50 md:hidden">
+                        <div class="p-4 border-b border-gray-200 dark:border-gray-700">
+                            <div class="flex items-center gap-3">
+                                <div class="size-6 text-primary">
+                                    <svg fill="none" viewbox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+                                        <g clip-path="url(#clip0_6_330)">
+                                            <path clip-rule="evenodd" d="M24 0.757355L47.2426 24L24 47.2426L0.757355 24L24 0.757355ZM21 35.7574V12.2426L9.24264 24L21 35.7574Z" fill="currentColor" fill-rule="evenodd"></path>
+                                        </g>
+                                    </svg>
+                                </div>
+                                <h2 class="text-lg font-bold">AcademiaTrack</h2>
+                            </div>
+                        </div>
+                        <nav class="p-4">
+                            <ul class="space-y-4">
+                                <li>
+                                    <a href="index.html#features" class="block text-gray-800 dark:text-gray-200 hover:text-primary dark:hover:text-primary py-2">Features</a>
+                                </li>
+                                <li>
+                                    <a href="index.html#stats" class="block text-gray-800 dark:text-gray-200 hover:text-primary dark:hover:text-primary py-2">Statistics</a>
+                                </li>
+                                <li>
+                                    <a href="index.html#about" class="block text-gray-800 dark:text-gray-200 hover:text-primary dark:hover:text-primary py-2">About</a>
+                                </li>
+                                <li class="pt-4 border-t border-gray-200 dark:border-gray-700" id="mobile-auth-buttons">
+                                    <a href="signup-page.html" class="block w-full text-center bg-primary text-white py-2 px-4 rounded-lg hover:opacity-90 transition-opacity mb-2">Sign Up</a>
+                                    <a href="login-page.html" class="block w-full text-center bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-gray-200 py-2 px-4 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors">Login</a>
+                                </li>
+                                <li class="pt-4 border-t border-gray-200 dark:border-gray-700 hidden" id="mobile-user-menu">
+                                    <a href="homepage.html" class="block w-full text-center bg-primary text-white py-2 px-4 rounded-lg hover:opacity-90 transition-opacity mb-2">Dashboard</a>
+                                    <button id="mobile-logout-btn" class="block w-full text-center bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-gray-200 py-2 px-4 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors">Logout</button>
+                                </li>
+                            </ul>
+                        </nav>
+                    </div>
+
+                    <!-- Menu Overlay -->
+                    <div id="menu-overlay" class="menu-overlay fixed inset-0 bg-black bg-opacity-50 z-40 md:hidden"></div>
+
+                    <!-- Terms of Service Content -->
+                    <main class="py-8 px-4">
+                        <div class="max-w-4xl mx-auto">
+                            <div class="mb-8">
+                                <h1 class="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">Terms of Service</h1>
+                                <p class="text-gray-600 dark:text-gray-400">Last updated: December 1, 2024</p>
+                            </div>
+                            
+                            <div class="terms-content bg-white dark:bg-gray-800 rounded-xl p-6 md:p-8 shadow-sm border border-gray-200 dark:border-gray-700">
+                                <div class="mb-8">
+                                    <p class="text-lg">Welcome to AcademiaTrack. By accessing or using our website and services, you agree to be bound by these Terms of Service. Please read them carefully.</p>
+                                </div>
+                                
+                                <h2>1. Acceptance of Terms</h2>
+                                <p>By accessing or using AcademiaTrack ("the Service"), you agree to be bound by these Terms of Service and all applicable laws and regulations. If you do not agree with any of these terms, you are prohibited from using or accessing this Service.</p>
+                                
+                                <h2>2. Use License</h2>
+                                <p>Permission is granted to temporarily use AcademiaTrack for personal, non-commercial transitory viewing only. This is the grant of a license, not a transfer of title, and under this license you may not:</p>
+                                <ul class="list-disc ml-6">
+                                    <li>Modify or copy the materials;</li>
+                                    <li>Use the materials for any commercial purpose or for any public display;</li>
+                                    <li>Attempt to reverse engineer any software contained on AcademiaTrack;</li>
+                                    <li>Remove any copyright or other proprietary notations from the materials; or</li>
+                                    <li>Transfer the materials to another person or "mirror" the materials on any other server.</li>
+                                </ul>
+                                <p>This license shall automatically terminate if you violate any of these restrictions and may be terminated by AcademiaTrack at any time.</p>
+                                
+                                <h2>3. User Accounts</h2>
+                                <p>To access certain features of the Service, you may be required to register for an account. You agree to:</p>
+                                <ul class="list-disc ml-6">
+                                    <li>Provide accurate, current, and complete information during the registration process;</li>
+                                    <li>Maintain and promptly update your account information;</li>
+                                    <li>Maintain the security of your password and accept all risks of unauthorized access to your account;</li>
+                                    <li>Notify us immediately if you discover or suspect any security breaches related to the Service; and</li>
+                                    <li>Take responsibility for all activities that occur under your account.</li>
+                                </ul>
+                                
+                                <h2>4. User Content</h2>
+                                <p>You retain all rights to any content you submit, post, or display on or through the Service. By submitting content, you grant AcademiaTrack a worldwide, non-exclusive, royalty-free license to use, copy, reproduce, process, adapt, modify, publish, transmit, display, and distribute such content in any and all media or distribution methods.</p>
+                                <p>You are responsible for the content you post, and you represent and warrant that you have all necessary rights to grant us this license for any content that you submit.</p>
+                                
+                                <h2>5. Academic Integrity</h2>
+                                <p>AcademiaTrack is designed to help students organize and track their academic progress. You agree to use the Service in a manner that supports academic integrity and complies with your educational institution's policies. The Service should not be used to:</p>
+                                <ul class="list-disc ml-6">
+                                    <li>Facilitate academic dishonesty;</li>
+                                    <li>Share or distribute unauthorized academic materials;</li>
+                                    <li>Coordinate or plan activities that violate your institution's honor code.</li>
+                                </ul>
+                                
+                                <h2>6. Privacy</h2>
+                                <p>Your privacy is important to us. Please read our <a href="privacy-policy.html">Privacy Policy</a> for information about how we collect, use, and disclose your personal information.</p>
+                                
+                                <h2>7. Disclaimer</h2>
+                                <p>The materials on AcademiaTrack are provided on an 'as is' basis. AcademiaTrack makes no warranties, expressed or implied, and hereby disclaims and negates all other warranties including, without limitation, implied warranties or conditions of merchantability, fitness for a particular purpose, or non-infringement of intellectual property or other violation of rights.</p>
+                                <p>Further, AcademiaTrack does not warrant or make any representations concerning the accuracy, likely results, or reliability of the use of the materials on its website or otherwise relating to such materials or on any sites linked to this site.</p>
+                                
+                                <h2>8. Limitations</h2>
+                                <p>In no event shall AcademiaTrack or its suppliers be liable for any damages (including, without limitation, damages for loss of data or profit, or due to business interruption) arising out of the use or inability to use the materials on AcademiaTrack, even if AcademiaTrack or an authorized representative has been notified orally or in writing of the possibility of such damage.</p>
+                                
+                                <h2>9. Accuracy of Materials</h2>
+                                <p>The materials appearing on AcademiaTrack could include technical, typographical, or photographic errors. AcademiaTrack does not warrant that any of the materials on its website are accurate, complete, or current. AcademiaTrack may make changes to the materials contained on its website at any time without notice.</p>
+                                
+                                <h2>10. Links</h2>
+                                <p>AcademiaTrack has not reviewed all of the sites linked to its website and is not responsible for the contents of any such linked site. The inclusion of any link does not imply endorsement by AcademiaTrack of the site. Use of any such linked website is at the user's own risk.</p>
+                                
+                                <h2>11. Modifications</h2>
+                                <p>AcademiaTrack may revise these Terms of Service at any time without notice. By using this website, you are agreeing to be bound by the then-current version of these Terms of Service.</p>
+                                
+                                <h2>12. Governing Law</h2>
+                                <p>These terms and conditions are governed by and construed in accordance with the laws of Nigeria and you irrevocably submit to the exclusive jurisdiction of the courts in that location.</p>
+                                
+                                <h2>13. Contact Information</h2>
+                                <p>If you have any questions about these Terms of Service, please contact us at:</p>
+                                <p class="mt-2">
+                                    Email: legal@academiatrack.com<br>
+                                    Address: AcademiaTrack Legal Department, FUTO, Owerri, Nigeria
+                                </p>
+                                
+                                <div class="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
+                                    <p class="text-sm text-gray-500 dark:text-gray-400">By using AcademiaTrack, you acknowledge that you have read, understood, and agree to be bound by these Terms of Service.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </main>
+
+                    <!-- Footer -->
+                    <footer class="w-full mt-16 border-t border-gray-200 dark:border-gray-700 pt-8 pb-12">
+                        <div class="flex flex-col sm:flex-row items-center justify-between gap-4 px-4">
+                            <div class="flex items-center gap-4 text-gray-900 dark:text-white mb-4 sm:mb-0">
+                                <a href="index.html" class="flex items-center gap-4">
+                                    <div class="size-6 text-primary">
+                                        <svg fill="none" viewbox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+                                            <g clip-path="url(#clip0_6_330)">
+                                                <path clip-rule="evenodd" d="M24 0.757355L47.2426 24L24 47.2426L0.757355 24L24 0.757355ZM21 35.7574V12.2426L9.24264 24L21 35.7574Z" fill="currentColor" fill-rule="evenodd"></path>
+                                            </g>
+                                        </svg>
+                                    </div>
+                                    <h3 class="text-lg font-bold">AcademiaTrack</h3>
+                                </a>
+                            </div>
+                            <div class="flex flex-col sm:flex-row items-center gap-6 text-sm">
+                                <div class="flex items-center gap-6 mb-4 sm:mb-0">
+                                    <a class="text-gray-500 dark:text-gray-400 hover:text-primary dark:hover:text-primary" href="index.html#features">Features</a>
+                                    <a class="text-gray-500 dark:text-gray-400 hover:text-primary dark:hover:text-primary" href="index.html#stats">Statistics</a>
+                                    <a class="text-gray-500 dark:text-gray-400 hover:text-primary dark:hover:text-primary" href="index.html#about">About</a>
+                                </div>
+                                <div class="flex items-center gap-6">
+                                    <a class="text-primary font-medium" href="terms-of-service.html">Terms of Service</a>
+                                    <a class="text-gray-500 dark:text-gray-400 hover:text-primary dark:hover:text-primary" href="privacy-policy.html">Privacy Policy</a>
+                                     <a class="text-gray-500 dark:text-gray-400 hover:text-primary dark:hover:text-primary" href="help.html">Help</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="text-center mt-6">
+                            <p class="text-gray-500 dark:text-gray-400 text-sm">© 2025 AcademiaTrack. Helping students achieve academic excellence.</p>
+                        </div>
+                    </footer>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Mobile menu functionality
+        const menuToggle = document.getElementById('menu-toggle');
+        const mobileMenu = document.getElementById('mobile-menu');
+        const menuOverlay = document.getElementById('menu-overlay');
+
+        function toggleMenu() {
+            mobileMenu.classList.toggle('open');
+            menuOverlay.classList.toggle('open');
+            document.body.style.overflow = mobileMenu.classList.contains('open') ? 'hidden' : '';
+        }
+
+        menuToggle.addEventListener('click', toggleMenu);
+        menuOverlay.addEventListener('click', toggleMenu);
+
+        // Close menu when clicking on links
+        const menuLinks = document.querySelectorAll('#mobile-menu a');
+        menuLinks.forEach(link => {
+            link.addEventListener('click', () => {
+                mobileMenu.classList.remove('open');
+                menuOverlay.classList.remove('open');
+                document.body.style.overflow = '';
+            });
+        });
+
+        // Check if user is logged in and update UI accordingly
+        function checkUserLogin() {
+            const currentUser = JSON.parse(localStorage.getItem('academiatrack_current_user') || 'null');
+            
+            if (currentUser && currentUser.fullName) {
+                // User is logged in - update UI
+                document.getElementById('auth-buttons').classList.add('hidden');
+                document.getElementById('user-menu').classList.remove('hidden');
+                document.getElementById('mobile-auth-buttons').classList.add('hidden');
+                document.getElementById('mobile-user-menu').classList.remove('hidden');
+            }
+        }
+
+        // Logout functionality
+        function setupLogout() {
+            const logoutBtn = document.getElementById('logout-btn');
+            const mobileLogoutBtn = document.getElementById('mobile-logout-btn');
+            
+            function logout() {
+                localStorage.removeItem('academiatrack_current_user');
+                window.location.href = 'index.html';
+            }
+            
+            if (logoutBtn) logoutBtn.addEventListener('click', logout);
+            if (mobileLogoutBtn) mobileLogoutBtn.addEventListener('click', logout);
+        }
+
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            checkUserLogin();
+            setupLogout();
+        });
+    </script>
+</body>
+</html>

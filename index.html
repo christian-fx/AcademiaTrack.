@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>AcademiaTrack - Master Your Semester</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="firebase-config.js"></script>
+    <link href="https://fonts.googleapis.com" rel="preconnect"/>
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+    <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;700;900&amp;display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#135bec",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#101622",
+                        "success": "#10B981",
+                    },
+                    fontFamily: {
+                        "display": ["Lexend", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            font-size: 24px;
+        }
+        
+        /* Mobile Menu Styles */
+        .mobile-menu {
+            transform: translateX(-100%);
+            transition: transform 0.3s ease-in-out;
+        }
+        
+        .mobile-menu.open {
+            transform: translateX(0);
+        }
+        
+        .menu-overlay {
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease-in-out;
+        }
+        
+        .menu-overlay.open {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .counter {
+            font-variant-numeric: tabular-nums;
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.6s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-[#343A40] dark:text-gray-200">
+    <div class="relative flex min-h-screen w-full flex-col group/design-root overflow-x-hidden">
+        <div class="layout-container flex h-full grow flex-col">
+            <div class="px-4 sm:px-10 md:px-20 lg:px-40 flex flex-1 justify-center py-5">
+                <div class="layout-content-container flex flex-col max-w-[960px] flex-1">
+                    <!-- TopNavBar -->
+                    <header class="flex items-center justify-between whitespace-nowrap border-b border-solid border-gray-200 dark:border-gray-700 px-4 sm:px-10 py-3">
+                        <div class="flex items-center gap-4 text-gray-900 dark:text-white">
+                            <div class="size-6 text-primary">
+                                <svg fill="none" viewbox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+                                    <g clip-path="url(#clip0_6_330)">
+                                        <path clip-rule="evenodd" d="M24 0.757355L47.2426 24L24 47.2426L0.757355 24L24 0.757355ZM21 35.7574V12.2426L9.24264 24L21 35.7574Z" fill="currentColor" fill-rule="evenodd"></path>
+                                    </g>
+                                    <defs>
+                                        <clippath id="clip0_6_330">
+                                            <rect fill="white" height="48" width="48"></rect>
+                                        </clippath>
+                                    </defs>
+                                </svg>
+                            </div>
+                            <h2 class="text-lg font-bold leading-tight tracking-[-0.015em]">AcademiaTrack</h2>
+                        </div>
+                        <div class="hidden md:flex flex-1 justify-end gap-8">
+                            <div class="flex items-center gap-9">
+                                <a class="text-sm font-medium leading-normal text-gray-800 dark:text-gray-300 hover:text-primary dark:hover:text-primary" href="#features">Features</a>
+                                <a class="text-sm font-medium leading-normal text-gray-800 dark:text-gray-300 hover:text-primary dark:hover:text-primary" href="#stats">Statistics</a>
+                                <a class="text-sm font-medium leading-normal text-gray-800 dark:text-gray-300 hover:text-primary dark:hover:text-primary" href="#about">About</a>
+                            </div>
+                            <div class="flex gap-2" id="auth-buttons">
+                                <a href="signup-page.html" class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-primary text-white text-sm font-bold leading-normal tracking-[0.015em] hover:opacity-90 transition-opacity">
+                                    <span class="truncate">Sign Up</span>
+                                </a>
+                                <a href="login-page.html" class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-gray-200 text-sm font-bold leading-normal tracking-[0.015em] hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors">
+                                    <span class="truncate">Login</span>
+                                </a>
+                            </div>
+                            <div class="hidden gap-2" id="user-menu">
+                                <a href="homepage.html" class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-primary text-white text-sm font-bold leading-normal tracking-[0.015em] hover:opacity-90 transition-opacity">
+                                    <span class="truncate">Dashboard</span>
+                                </a>
+                                <button id="logout-btn" class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-gray-200 text-sm font-bold leading-normal tracking-[0.015em] hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors">
+                                    <span class="truncate">Logout</span>
+                                </button>
+                            </div>
+                        </div>
+                        <button id="menu-toggle" class="md:hidden p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800">
+                            <span class="material-symbols-outlined text-gray-800 dark:text-gray-200">menu</span>
+                        </button>
+                    </header>
+
+                    <!-- Mobile Menu -->
+                    <div id="mobile-menu" class="mobile-menu fixed top-0 left-0 h-full w-64 bg-white dark:bg-gray-800 shadow-lg z-50 md:hidden">
+                        <div class="p-4 border-b border-gray-200 dark:border-gray-700">
+                            <div class="flex items-center gap-3">
+                                <div class="size-6 text-primary">
+                                    <svg fill="none" viewbox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+                                        <g clip-path="url(#clip0_6_330)">
+                                            <path clip-rule="evenodd" d="M24 0.757355L47.2426 24L24 47.2426L0.757355 24L24 0.757355ZM21 35.7574V12.2426L9.24264 24L21 35.7574Z" fill="currentColor" fill-rule="evenodd"></path>
+                                        </g>
+                                    </svg>
+                                </div>
+                                <h2 class="text-lg font-bold">AcademiaTrack</h2>
+                            </div>
+                        </div>
+                        <nav class="p-4">
+                            <ul class="space-y-4">
+                                <li>
+                                    <a href="#features" class="block text-gray-800 dark:text-gray-200 hover:text-primary dark:hover:text-primary py-2">Features</a>
+                                </li>
+                                <li>
+                                    <a href="#stats" class="block text-gray-800 dark:text-gray-200 hover:text-primary dark:hover:text-primary py-2">Statistics</a>
+                                </li>
+                                <li>
+                                    <a href="#about" class="block text-gray-800 dark:text-gray-200 hover:text-primary dark:hover:text-primary py-2">About</a>
+                                </li>
+                                <li class="pt-4 border-t border-gray-200 dark:border-gray-700" id="mobile-auth-buttons">
+                                    <a href="signup-page.html" class="block w-full text-center bg-primary text-white py-2 px-4 rounded-lg hover:opacity-90 transition-opacity mb-2">Sign Up</a>
+                                    <a href="login-page.html" class="block w-full text-center bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-gray-200 py-2 px-4 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors">Login</a>
+                                </li>
+                                <li class="pt-4 border-t border-gray-200 dark:border-gray-700 hidden" id="mobile-user-menu">
+                                    <a href="homepage.html" class="block w-full text-center bg-primary text-white py-2 px-4 rounded-lg hover:opacity-90 transition-opacity mb-2">Dashboard</a>
+                                    <button id="mobile-logout-btn" class="block w-full text-center bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-gray-200 py-2 px-4 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors">Logout</button>
+                                </li>
+                            </ul>
+                        </nav>
+                    </div>
+
+                    <!-- Menu Overlay -->
+                    <div id="menu-overlay" class="menu-overlay fixed inset-0 bg-black bg-opacity-50 z-40 md:hidden"></div>
+
+                    <!-- HeroSection -->
+                    <main>
+                        <div class="@container">
+                            <div class="flex flex-col gap-6 px-4 py-16 text-center items-center @[864px]:flex-row @[864px]:text-left">
+                                <div class="flex flex-col gap-6 @[864px]:justify-center">
+                                    <div class="flex flex-col gap-2">
+                                        <h1 class="text-gray-900 dark:text-white text-4xl font-black leading-tight tracking-[-0.033em] @[480px]:text-5xl" id="welcome-message">Master Your Semester, Effortlessly.</h1>
+                                        <h2 class="text-gray-700 dark:text-gray-300 text-base font-normal leading-normal @[480px]:text-lg" id="welcome-subtitle">The all-in-one tracker to manage your courses, grades, and deadlines so you can focus on learning.</h2>
+                                    </div>
+                                    <div class="flex-wrap gap-3 flex justify-center @[864px]:justify-start" id="hero-buttons">
+                                        <a href="signup-page.html" class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-5 bg-primary text-white text-base font-bold leading-normal tracking-[0.015em] hover:opacity-90 transition-opacity">
+                                            <span class="truncate">Get Started Free</span>
+                                        </a>
+                                        <a href="login-page.html" class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-5 bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-gray-200 text-base font-bold leading-normal tracking-[0.015em] hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors">
+                                            <span class="truncate">Log In</span>
+                                        </a>
+                                    </div>
+                                    <div class="hidden" id="user-welcome">
+                                        <a href="homepage.html" class="inline-flex items-center gap-2 px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors text-base font-bold">
+                                            <span>Go to Dashboard</span>
+                                            <span class="material-symbols-outlined text-lg">arrow_forward</span>
+                                        </a>
+                                    </div>
+                                </div>
+                                <div class="w-full bg-center bg-no-repeat aspect-square bg-cover rounded-xl @[864px]:w-full @[864px]:max-w-md" data-alt="Abstract illustration of students collaborating and organizing tasks on a digital interface" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBBDwhq1pPJ-uJanudmlUHg5vDA5yZaEstCUeYL9CW1iq8o4Eq-tuZn5krHHXjxQnQDaXjzCRT9DBmHaswqCyJ36PqyJ19n28yvV5IKpKBm2yQ2GjyOoxRC3H6-TnCZFifT2wa8twM98SCK08Cxh_t51B2StaHeYmo4TUN1hpzPg-oHfl7X_7Wift937VA-KWcbuGNrDqsfCnoSBnTsEv1dzS6KmVUNZTt4NfoY4dQJ_i4Ufz44X00gHCqPdCodPVgY8lIc_dqo4YM');"></div>
+                            </div>
+                        </div>
+
+                        <!-- App Statistics Section -->
+                        <section id="stats" class="scroll-mt-16">
+                            <div class="flex flex-col gap-10 px-4 py-10 @container">
+                                <div class="text-center">
+                                    <h2 class="text-gray-900 dark:text-white text-3xl font-bold leading-tight tracking-[-0.015em] mb-4">Academic Success in Numbers</h2>
+                                    <p class="text-gray-600 dark:text-gray-400 text-lg max-w-2xl mx-auto">See how students are transforming their academic journey with AcademiaTrack</p>
+                                </div>
+                                
+                                <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+                                    <div class="fade-in bg-white dark:bg-gray-800 rounded-xl p-6 text-center border border-gray-200 dark:border-gray-700 shadow-sm">
+                                        <div class="text-3xl font-bold text-primary counter" id="total-users">0</div>
+                                        <div class="text-gray-600 dark:text-gray-400 text-sm mt-2">Active Students</div>
+                                    </div>
+                                    <div class="fade-in bg-white dark:bg-gray-800 rounded-xl p-6 text-center border border-gray-200 dark:border-gray-700 shadow-sm">
+                                        <div class="text-3xl font-bold text-success counter" id="total-courses">0</div>
+                                        <div class="text-gray-600 dark:text-gray-400 text-sm mt-2">Courses Tracked</div>
+                                    </div>
+                                    <div class="fade-in bg-white dark:bg-gray-800 rounded-xl p-6 text-center border border-gray-200 dark:border-gray-700 shadow-sm">
+                                        <div class="text-3xl font-bold text-primary counter" id="total-semesters">0</div>
+                                        <div class="text-gray-600 dark:text-gray-400 text-sm mt-2">Semesters Managed</div>
+                                    </div>
+                                    <div class="fade-in bg-white dark:bg-gray-800 rounded-xl p-6 text-center border border-gray-200 dark:border-gray-700 shadow-sm">
+                                        <div class="text-3xl font-bold text-success counter" id="total-activities">0</div>
+                                        <div class="text-gray-600 dark:text-gray-400 text-sm mt-2">Activities Planned</div>
+                                    </div>
+                                </div>
+
+                                <!-- User Progress Highlights -->
+                                <div id="user-highlights" class="hidden fade-in bg-gradient-to-r from-primary/10 to-success/10 dark:from-primary/20 dark:to-success/20 rounded-xl p-6 border border-primary/20">
+                                    <div class="text-center">
+                                        <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-4">Your Academic Progress</h3>
+                                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                            <div class="bg-white dark:bg-gray-800 rounded-lg p-4">
+                                                <div class="text-2xl font-bold text-primary counter" id="user-cgpa">0.00</div>
+                                                <div class="text-gray-600 dark:text-gray-400 text-sm">Your CGPA</div>
+                                            </div>
+                                            <div class="bg-white dark:bg-gray-800 rounded-lg p-4">
+                                                <div class="text-2xl font-bold text-success counter" id="user-courses">0</div>
+                                                <div class="text-gray-600 dark:text-gray-400 text-sm">Your Courses</div>
+                                            </div>
+                                            <div class="bg-white dark:bg-gray-800 rounded-lg p-4">
+                                                <div class="text-2xl font-bold text-primary counter" id="user-level">100</div>
+                                                <div class="text-gray-600 dark:text-gray-400 text-sm">Your Level</div>
+                                            </div>
+                                        </div>
+                                        <div class="mt-4">
+                                            <a href="homepage.html" class="inline-flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors">
+                                                <span>Continue to Dashboard</span>
+                                                <span class="material-symbols-outlined text-lg">arrow_forward</span>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+
+                        <!-- Features Section -->
+                        <section id="features" class="scroll-mt-16">
+                            <h2 class="text-gray-900 dark:text-white text-center text-3xl font-bold leading-tight tracking-[-0.015em] px-4 pb-3 pt-10">Everything You Need to Succeed</h2>
+                            <div class="flex flex-col gap-10 px-4 py-10 @container">
+                                <div class="grid grid-cols-[repeat(auto-fit,minmax(240px,1fr))] gap-6 p-0">
+                                    <div class="flex flex-1 gap-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-6 flex-col shadow-sm">
+                                        <div class="text-primary">
+                                            <span class="material-symbols-outlined !text-3xl">trending_up</span>
+                                        </div>
+                                        <div class="flex flex-col gap-1">
+                                            <h3 class="text-gray-900 dark:text-white text-lg font-bold leading-tight">Track Grades</h3>
+                                            <p class="text-gray-600 dark:text-gray-400 text-sm font-normal leading-normal">Keep a real-time record of your performance in every course.</p>
+                                        </div>
+                                    </div>
+                                    <div class="flex flex-1 gap-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-6 flex-col shadow-sm">
+                                        <div class="text-primary">
+                                            <span class="material-symbols-outlined !text-3xl">calendar_today</span>
+                                        </div>
+                                        <div class="flex flex-col gap-1">
+                                            <h3 class="text-gray-900 dark:text-white text-lg font-bold leading-tight">Manage Deadlines</h3>
+                                            <p class="text-gray-600 dark:text-gray-400 text-sm font-normal leading-normal">Never miss an assignment with our intuitive deadline planner.</p>
+                                        </div>
+                                    </div>
+                                    <div class="flex flex-1 gap-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-6 flex-col shadow-sm">
+                                        <div class="text-primary">
+                                            <span class="material-symbols-outlined !text-3xl">checklist</span>
+                                        </div>
+                                        <div class="flex flex-col gap-1">
+                                            <h3 class="text-gray-900 dark:text-white text-lg font-bold leading-tight">Plan Your Semester</h3>
+                                            <p class="text-gray-600 dark:text-gray-400 text-sm font-normal leading-normal">Visualize your semester schedule and stay ahead of your coursework.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+
+                        <!-- About Section -->
+                        <section id="about" class="scroll-mt-16">
+                            <div class="flex flex-col gap-10 px-4 py-10 @container">
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+                                    <div>
+                                        <h2 class="text-gray-900 dark:text-white text-2xl font-bold leading-tight tracking-[-0.015em] mb-4">About AcademiaTrack</h2>
+                                        <p class="text-gray-600 dark:text-gray-400 text-base leading-relaxed mb-4">
+                                            AcademiaTrack is designed by students, for students. We understand the challenges of managing multiple courses, deadlines, and grades throughout the semester.
+                                        </p>
+                                        <p class="text-gray-600 dark:text-gray-400 text-base leading-relaxed">
+                                            Our mission is to provide a simple, intuitive platform that helps you stay organized, track your academic progress, and achieve your educational goals.
+                                        </p>
+                                    </div>
+                                    <div class="bg-gray-100 dark:bg-gray-800 rounded-xl p-6">
+                                        <div class="text-primary mb-4">
+                                            <span class="material-symbols-outlined !text-4xl">school</span>
+                                        </div>
+                                        <h3 class="text-gray-900 dark:text-white text-lg font-bold mb-2">Built for Nigerian Universities</h3>
+                                        <p class="text-gray-600 dark:text-gray-400 text-sm">
+                                            Specifically designed to work with the Federal University of Technology, Owerri (FUTO's) system, including the Harmattan and Rain semesters, as well as the local grading systems.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+
+                        <!-- CTASection -->
+                        <div class="@container">
+                            <div class="flex flex-col justify-center items-center gap-6 px-4 py-20 text-center bg-gray-100 dark:bg-gray-800/50 rounded-xl my-10">
+                                <div class="flex flex-col gap-2">
+                                    <h1 class="text-gray-900 dark:text-white tracking-tight text-3xl font-bold leading-tight @[480px]:text-4xl @[480px]:font-black" id="cta-title">Ready to take control of your studies?</h1>
+                                    <p class="text-gray-700 dark:text-gray-300 text-base font-normal leading-normal max-w-xl mx-auto">Join <span id="cta-users" class="font-bold text-primary">0 students</span> who are already tracking their academic success with AcademiaTrack.</p>
+                                </div>
+                                <div class="flex justify-center" id="cta-buttons">
+                                    <a href="signup-page.html" class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-6 bg-primary text-white text-base font-bold leading-normal tracking-[0.015em] grow hover:opacity-90 transition-opacity">
+                                        <span class="truncate">Sign Up Now, It's Free</span>
+                                    </a>
+                                </div>
+                                <div class="hidden" id="user-cta">
+                                    <a href="homepage.html" class="inline-flex items-center gap-2 px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors text-base font-bold">
+                                        <span>Go to Your Dashboard</span>
+                                        <span class="material-symbols-outlined text-lg">arrow_forward</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </main>
+
+                    <!-- Footer -->
+                    <footer class="w-full mt-16 border-t border-gray-200 dark:border-gray-700 pt-8 pb-12">
+                        <div class="flex flex-col sm:flex-row items-center justify-between gap-4 px-4">
+                            <div class="flex items-center gap-4 text-gray-900 dark:text-white mb-4 sm:mb-0">
+                                <div class="size-6 text-primary">
+                                    <svg fill="none" viewbox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+                                        <g clip-path="url(#clip0_6_330)">
+                                            <path clip-rule="evenodd" d="M24 0.757355L47.2426 24L24 47.2426L0.757355 24L24 0.757355ZM21 35.7574V12.2426L9.24264 24L21 35.7574Z" fill="currentColor" fill-rule="evenodd"></path>
+                                        </g>
+                                    </svg>
+                                </div>
+                                <h3 class="text-lg font-bold">AcademiaTrack</h3>
+                            </div>
+                            <div class="flex flex-col sm:flex-row items-center gap-6 text-sm">
+                                <div class="flex items-center gap-6 mb-4 sm:mb-0">
+                                    <a class="text-gray-500 dark:text-gray-400 hover:text-primary dark:hover:text-primary" href="#features">Features</a>
+                                    <a class="text-gray-500 dark:text-gray-400 hover:text-primary dark:hover:text-primary" href="#stats">Statistics</a>
+                                    <a class="text-gray-500 dark:text-gray-400 hover:text-primary dark:hover:text-primary" href="#about">About</a>
+                                </div>
+                                <div class="flex items-center gap-6">
+                                    <a class="text-gray-500 dark:text-gray-400 hover:text-primary dark:hover:text-primary" href="Terms.html">Terms of Service</a>
+                                    <a class="text-gray-500 dark:text-gray-400 hover:text-primary dark:hover:text-primary" href="privacy-policy.html">Privacy Policy</a>
+                                     <a class="text-gray-500 dark:text-gray-400 hover:text-primary dark:hover:text-primary" href="help.html">Help</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="text-center mt-6">
+                            <p class="text-gray-500 dark:text-gray-400 text-sm">© 2025 AcademiaTrack. Helping <span id="footer-users" class="font-medium">0  Futo-students</span> achieve academic excellence.</p>
+                        </div>
+                    </footer>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Mobile menu functionality
+        const menuToggle = document.getElementById('menu-toggle');
+        const mobileMenu = document.getElementById('mobile-menu');
+        const menuOverlay = document.getElementById('menu-overlay');
+
+        function toggleMenu() {
+            mobileMenu.classList.toggle('open');
+            menuOverlay.classList.toggle('open');
+            document.body.style.overflow = mobileMenu.classList.contains('open') ? 'hidden' : '';
+        }
+
+        menuToggle.addEventListener('click', toggleMenu);
+        menuOverlay.addEventListener('click', toggleMenu);
+
+        // Close menu when clicking on links
+        const menuLinks = document.querySelectorAll('#mobile-menu a');
+        menuLinks.forEach(link => {
+            link.addEventListener('click', () => {
+                mobileMenu.classList.remove('open');
+                menuOverlay.classList.remove('open');
+                document.body.style.overflow = '';
+            });
+        });
+
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Check if user is logged in and update UI accordingly
+        function checkUserLogin() {
+            firebaseUtils.getCurrentUser().then(user => {
+                if (user) {
+                    // User is logged in - get user data
+                    firebaseUtils.getUserData(user.uid).then(userData => {
+                        if (userData) {
+                            // Update UI for logged-in user
+                            document.getElementById('auth-buttons').classList.add('hidden');
+                            document.getElementById('user-menu').classList.remove('hidden');
+                            document.getElementById('mobile-auth-buttons').classList.add('hidden');
+                            document.getElementById('mobile-user-menu').classList.remove('hidden');
+                            
+                            // Update welcome message
+                            document.getElementById('welcome-message').textContent = `Welcome back, ${userData.fullName}!`;
+                            document.getElementById('welcome-subtitle').textContent = 'Continue tracking your academic journey and achieving your goals.';
+                            
+                            // Update hero buttons
+                            document.getElementById('hero-buttons').classList.add('hidden');
+                            document.getElementById('user-welcome').classList.remove('hidden');
+                            
+                            // Update CTA section
+                            document.getElementById('cta-title').textContent = 'Continue Your Academic Journey';
+                            document.getElementById('cta-buttons').classList.add('hidden');
+                            document.getElementById('user-cta').classList.remove('hidden');
+
+                            // Show user highlights
+                            showUserHighlights(userData);
+                        }
+                    });
+                }
+            });
+        }
+
+        // Logout functionality
+        function setupLogout() {
+            const logoutBtn = document.getElementById('logout-btn');
+            const mobileLogoutBtn = document.getElementById('mobile-logout-btn');
+            
+            function logout() {
+                firebaseUtils.signOut().then(() => {
+                    localStorage.removeItem('academiatrack_current_user');
+                    window.location.reload();
+                });
+            }
+            
+            if (logoutBtn) logoutBtn.addEventListener('click', logout);
+            if (mobileLogoutBtn) mobileLogoutBtn.addEventListener('click', logout);
+        }
+
+        // Statistics and Data Display
+        function loadAppStatistics() {
+            // Get all users from Firebase
+            firebaseUtils.getAllUsers().then(users => {
+                if (!users) {
+                    users = {};
+                }
+
+                const userArray = Object.values(users);
+                
+                // Calculate total statistics
+                let totalCourses = 0;
+                let totalSemesters = 0;
+                let totalActivities = 0;
+
+                userArray.forEach(user => {
+                    if (user.semesters) {
+                        totalSemesters += user.semesters.length;
+                        user.semesters.forEach(semester => {
+                            if (semester.courses) {
+                                totalCourses += semester.courses.length;
+                            }
+                        });
+                    }
+                    if (user.activities) {
+                        totalActivities += user.activities.length;
+                    }
+                });
+
+                // Update statistics with counting animation
+                animateCounter('total-users', userArray.length);
+                animateCounter('total-courses', totalCourses);
+                animateCounter('total-semesters', totalSemesters);
+                animateCounter('total-activities', totalActivities);
+                
+                // Update CTA and footer
+                document.getElementById('cta-users').textContent = `${userArray.length} FUTO-students`;
+                document.getElementById('footer-users').textContent = `${userArray.length} FUTO-students`;
+            });
+        }
+
+        function showUserHighlights(user) {
+            const highlights = document.getElementById('user-highlights');
+            highlights.classList.remove('hidden');
+            
+            // Calculate user statistics using the same method as progress page
+            let userCourses = 0;
+            let userCGPA = 0;
+            let totalCredits = 0;
+            let totalGradePoints = 0;
+
+            if (user.semesters) {
+                user.semesters.forEach(semester => {
+                    if (semester.courses) {
+                        userCourses += semester.courses.length;
+                        
+                        semester.courses.forEach(course => {
+                            if (course.units && course.grade && course.grade.trim() !== '') {
+                                const credits = parseFloat(course.units);
+                                const gradePoint = getGradePoint(course.grade);
+                                
+                                if (!isNaN(credits) && gradePoint !== null) {
+                                    totalGradePoints += credits * gradePoint;
+                                    totalCredits += credits;
+                                }
+                            }
+                        });
+                    }
+                });
+            }
+
+            userCGPA = totalCredits > 0 ? (totalGradePoints / totalCredits) : 0;
+
+            // Update user highlights with animation
+            animateCounter('user-courses', userCourses, 0);
+            animateCounter('user-cgpa', userCGPA, 2);
+            document.getElementById('user-level').textContent = user.level || '100';
+        }
+
+        // Get grade point from grade - UPDATED to match progress page grading system
+        function getGradePoint(grade) {
+            const gradePoints = {
+                'A': 5.0,
+                'B': 4.0, 
+                'C': 3.0,
+                'D': 2.0,
+                'E': 1.0,
+                'F': 0.0
+            };
+            return gradePoints[grade] !== undefined ? gradePoints[grade] : null;
+        }
+
+        function animateCounter(elementId, targetValue, decimals = 0) {
+            const element = document.getElementById(elementId);
+            const currentValue = parseFloat(element.textContent) || 0;
+            const duration = 1500; // 1.5 seconds
+            const steps = 60;
+            const stepValue = (targetValue - currentValue) / steps;
+            let currentStep = 0;
+
+            const timer = setInterval(() => {
+                currentStep++;
+                const newValue = currentValue + (stepValue * currentStep);
+                
+                if (currentStep >= steps) {
+                    element.textContent = targetValue.toFixed(decimals);
+                    clearInterval(timer);
+                } else {
+                    element.textContent = newValue.toFixed(decimals);
+                }
+            }, duration / steps);
+        }
+
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            checkUserLogin();
+            setupLogout();
+            loadAppStatistics();
+        });
+
+        // Update statistics when returning to the page
+        window.addEventListener('focus', loadAppStatistics);
+    </script>
+</body>
+</html>

@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Academic Progress - AcademiaTrack</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="firebase-config.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@100..900&amp;display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
+    <script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "primary": "#4A90E2",
+              "success": "#50E3C2",
+              "background-light": "#F8F9FA",
+              "background-dark": "#101622",
+              "text-light": "#333333",
+              "text-dark": "#E0E0E0",
+              "border-light": "#E0E0E0",
+              "border-dark": "#333333",
+            },
+            fontFamily: {
+              "display": ["Lexend", "sans-serif"]
+            },
+            borderRadius: { "DEFAULT": "0.5rem", "lg": "0.75rem", "xl": "1rem", "full": "9999px" },
+          },
+        },
+      }
+    </script>
+    <style>
+        /* Mobile Menu Styles */
+        .mobile-menu {
+            transform: translateX(-100%);
+            transition: transform 0.3s ease-in-out;
+        }
+        
+        .mobile-menu.open {
+            transform: translateX(0);
+        }
+        
+        .menu-overlay {
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease-in-out;
+        }
+        
+        .menu-overlay.open {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        /* Toast notification styles */
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 12px 20px;
+            border-radius: 8px;
+            color: white;
+            font-weight: 500;
+            z-index: 1000;
+            transform: translateX(400px);
+            transition: transform 0.3s ease-in-out;
+            max-width: 300px;
+        }
+        
+        .toast.show {
+            transform: translateX(0);
+        }
+        
+        .toast.success {
+            background-color: #10B981;
+        }
+        
+        .toast.error {
+            background-color: #EF4444;
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.3s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* CGPA Display */
+        .cgpa-display {
+            background: linear-gradient(135deg, #4A90E2 0%, #50E3C2 100%);
+            color: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        /* Collapsible styles - FIXED */
+        .collapsible-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s ease-out;
+        }
+        
+        .collapsible-content.expanded {
+            max-height: 5000px; /* Increased to accommodate many courses */
+        }
+        
+        .toggle-icon {
+            transition: transform 0.3s ease;
+        }
+        
+        .toggle-icon.rotated {
+            transform: rotate(180deg);
+        }
+    </style>
+</head>
+<body class="font-display bg-background-light dark:bg-background-dark text-text-light dark:text-text-dark">
+    <!-- Toast Notification -->
+    <div id="toast" class="toast"></div>
+
+    <div class="relative flex h-auto min-h-screen w-full flex-col group/design-root overflow-x-hidden">
+        <div class="layout-container flex h-full grow flex-col">
+            <div class="px-4 sm:px-8 md:px-16 lg:px-24 xl:px-40 flex flex-1 justify-center py-5">
+                <div class="layout-content-container flex flex-col w-full max-w-[960px] flex-1">
+                    <!-- TopNavBar -->
+                    <header class="flex items-center justify-between whitespace-nowrap border-b border-solid border-border-light dark:border-border-dark px-4 sm:px-6 md:px-10 py-3">
+                        <div class="flex items-center gap-4 text-text-light dark:text-text-dark">
+                            <div class="text-primary size-6">
+                                <svg fill="currentColor" viewbox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+                                    <g clip-path="url(#clip0_6_330)">
+                                        <path clip-rule="evenodd" d="M24 0.757355L47.2426 24L24 47.2426L0.757355 24L24 0.757355ZM21 35.7574V12.2426L9.24264 24L21 35.7574Z" fill="currentColor" fill-rule="evenodd"></path>
+                                    </g>
+                                    <defs>
+                                        <clippath id="clip0_6_330"><rect fill="white" height="48" width="48"></rect></clippath>
+                                    </defs>
+                                </svg>
+                            </div>
+                            <h2 class="text-lg font-bold leading-tight tracking-[-0.015em]">AcademiaTrack</h2>
+                        </div>
+                        <div class="hidden md:flex flex-1 justify-end gap-8">
+                            <div class="flex items-center gap-9">
+                                <a class="text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-primary dark:hover:text-primary" href="homepage.html">Dashboard</a>
+                                <a class="text-sm font-medium text-primary dark:text-primary" href="#">Progress</a>
+                                <a class="text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-primary dark:hover:text-primary" href="activities-page.html">Activities</a>
+                                <a class="text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-primary dark:hover:text-primary" href="profile-page.html">Profile</a>
+                            </div>
+                        </div>
+                        <button id="menu-toggle" class="md:hidden p-2 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-800">
+                            <span class="material-symbols-outlined text-gray-800 dark:text-gray-200">menu</span>
+                        </button>
+                    </header>
+
+                    <!-- Mobile Menu -->
+                    <div id="mobile-menu" class="mobile-menu fixed top-0 left-0 h-full w-64 bg-white dark:bg-gray-800 shadow-lg z-50 md:hidden">
+                        <div class="p-4 border-b border-gray-200 dark:border-gray-700">
+                            <div class="flex items-center gap-3">
+                                <div class="size-6 text-primary">
+                                    <svg fill="currentColor" viewbox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+                                        <g clip-path="url(#clip0_6_330)">
+                                            <path clip-rule="evenodd" d="M24 0.757355L47.2426 24L24 47.2426L0.757355 24L24 0.757355ZM21 35.7574V12.2426L9.24264 24L21 35.7574Z" fill="currentColor" fill-rule="evenodd"></path>
+                                        </g>
+                                    </svg>
+                                </div>
+                                <h2 class="text-lg font-bold">AcademiaTrack</h2>
+                            </div>
+                        </div>
+                        <nav class="p-4">
+                            <ul class="space-y-4">
+                                 <li>
+                                    <a href="homepage.html" class="block text-gray-800 dark:text-gray-200 hover:text-primary dark:hover:text-primary py-2">Dashboard</a>
+                                </li>
+                                <li>
+                                    <a href="activitiespage.html" class="block text-gray-800 dark:text-gray-200 hover:text-primary dark:hover:text-primary py-2">Activities</a>
+                                </li>
+                   <li>
+                                    <a href="homepage.html" class="block text-primary font-medium py-2">Progress</a>
+                                </li>
+                                </li>
+                                <li>
+                                    <a href="profile-page.html" class="block text-gray-800 dark:text-gray-200 hover:text-primary dark:hover:text-primary py-2">Profile</a>
+                                </li>
+                                            <li>
+                        <a href="chatbot.html" class="block text-gray-800 dark:text-gray-200 hover:text-primary dark:hover:text-primary py-2">ChatBot</a>
+                    </li>
+                                <li class="pt-4 border-t border-gray-200 dark:border-gray-700">
+                                    <button id="mobile-logout" class="block w-full text-center bg-red-500 text-white py-2 px-4 rounded-lg hover:bg-red-600 transition-colors">
+                                        Logout
+                                    </button>
+                                </li>
+                            </ul>
+                        </nav>
+                    </div>
+
+                    <!-- Menu Overlay -->
+                    <div id="menu-overlay" class="menu-overlay fixed inset-0 bg-black bg-opacity-50 z-40 md:hidden"></div>
+
+                    <!-- PageHeading -->
+                    <div class="flex flex-wrap justify-between items-center gap-4 p-4 md:p-6">
+                        <div class="flex flex-col gap-2">
+                            <p class="text-3xl md:text-4xl font-black leading-tight tracking-[-0.033em] min-w-72">My Academic Progress</p>
+                            <p class="text-text-light/70 dark:text-text-dark/70">Track your semesters, courses, and calculate your GPA</p>
+                        </div>
+                        <div class="flex gap-2">
+                            <button id="toggle-all-semesters" class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 text-sm font-medium leading-normal gap-2">
+                                <span class="material-symbols-outlined text-xl">unfold_more</span>
+                                <span class="truncate">Toggle All</span>
+                            </button>
+                            <button id="add-semester-btn" class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-primary text-white text-sm font-bold leading-normal tracking-[0.015em] gap-2">
+                                <span class="material-symbols-outlined text-xl">add</span>
+                                <span class="truncate">Add Semester</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- CGPA Display -->
+                    <div id="cgpa-container" class="cgpa-display mx-4 md:mx-6 hidden">
+                        <div class="flex flex-col md:flex-row justify-between items-center">
+                            <div>
+                                <h3 class="text-lg font-bold">Cumulative GPA (CGPA)</h3>
+                                <p class="text-sm opacity-90">Based on all completed semesters</p>
+                            </div>
+                            <div class="text-center md:text-right mt-4 md:mt-0">
+                                <p class="text-4xl font-bold" id="cgpa-value">0.00</p>
+                                <p class="text-sm opacity-90">on a 5.0 scale</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Add Semester Modal -->
+                    <div id="semester-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4 hidden">
+                        <div class="bg-white dark:bg-background-dark rounded-lg p-6 w-full max-w-md">
+                            <h3 class="text-xl font-bold mb-4">Add New Semester</h3>
+                            <form id="semester-form" class="space-y-4">
+                                <div>
+                                    <label class="block text-sm font-medium mb-2">Academic Level</label>
+                                    <select id="semester-level" class="w-full bg-background-light dark:bg-background-dark border border-border-light dark:border-border-dark rounded-md h-10 px-3 text-sm focus:ring-primary focus:border-primary" required>
+                                        <option value="">Select Level</option>
+                                        <option value="100">100 Level</option>
+                                        <option value="200">200 Level</option>
+                                        <option value="300">300 Level</option>
+                                        <option value="400">400 Level</option>
+                                        <option value="500">500 Level</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium mb-2">Semester Type</label>
+                                    <select id="semester-type" class="w-full bg-background-light dark:bg-background-dark border border-border-light dark:border-border-dark rounded-md h-10 px-3 text-sm focus:ring-primary focus:border-primary" required>
+                                        <option value="">Select Semester</option>
+                                        <option value="Harmattan">Harmattan Semester</option>
+                                        <option value="Rain">Rain Semester</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium mb-2">Academic Year</label>
+                                    <input id="semester-year" type="number" min="2020" max="2030" value="2024" class="w-full bg-background-light dark:bg-background-dark border border-border-light dark:border-border-dark rounded-md h-10 px-3 text-sm focus:ring-primary focus:border-primary" required>
+                                </div>
+                                <div class="flex gap-3 pt-4">
+                                    <button type="button" id="cancel-semester" class="flex-1 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg h-10 font-medium">Cancel</button>
+                                    <button type="submit" class="flex-1 bg-primary text-white rounded-lg h-10 font-medium">Add Semester</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Semesters Container -->
+                    <div id="semesters-container" class="space-y-4 p-4">
+                        <!-- Semesters will be dynamically added here -->
+                    </div>
+
+                    <!-- Empty State -->
+                    <div id="empty-state" class="p-4">
+                        <div class="flex flex-col items-center gap-6 p-10 border-2 border-dashed border-border-light dark:border-border-dark rounded-lg">
+                            <div class="w-full max-w-[240px]">
+                                <img class="w-full h-auto" data-alt="Illustration of a student studying with books and a graduation cap" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAeC_b2DfvMF_s_p5z6kSs93nzYJz42xkd-Ctb8oTuNRpFS_0-uJ-a2MC6lK8qm-XAl03F3FfHnuUm41b6fiqmsgU6uI474WSjorL1w0sucP_k3EK0z4_QOKG2ypXOqYEjZEUnE9x3xxEw0a95VJ5Ej6dM_g9v_xSembIHsfFiXmc5W8ITxNf1DPZps9daXz7BnY9b-jXBkRiF0_8_tHhU6c7IX9ckljTmUyl5EM74YzjbpWUGFccQS-uNVH9YMoMkJ7Y56nMAMyGs"/>
+                            </div>
+                            <div class="flex max-w-[480px] flex-col items-center gap-2">
+                                <p class="text-lg font-bold leading-tight tracking-[-0.015em] text-center">Ready to track your success?</p>
+                                <p class="text-sm font-normal leading-normal text-center text-text-light/70 dark:text-text-dark/70">
+                                    Start by adding your first semester. It's the first step towards achieving your academic goals!
+                                </p>
+                            </div>
+                            <button id="add-first-semester" class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-primary text-white text-sm font-bold leading-normal tracking-[0.015em] gap-2">
+                                <span class="material-symbols-outlined text-xl">add</span>
+                                <span class="truncate">Add First Semester</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Footer -->
+                    <footer class="w-full mt-16 border-t border-border-light dark:border-border-dark pt-8 pb-12">
+                        <div class="flex flex-col sm:flex-row items-center justify-between gap-4 px-4">
+                            <div class="flex items-center gap-4 text-gray-900 dark:text-white mb-4 sm:mb-0">
+                                <div class="size-6 text-primary">
+                                    <svg fill="currentColor" viewbox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+                                        <g clip-path="url(#clip0_6_330)">
+                                            <path clip-rule="evenodd" d="M24 0.757355L47.2426 24L24 47.2426L0.757355 24L24 0.757355ZM21 35.7574V12.2426L9.24264 24L21 35.7574Z" fill="currentColor" fill-rule="evenodd"></path>
+                                        </g>
+                                    </svg>
+                                </div>
+                                <h3 class="text-lg font-bold">AcademiaTrack</h3>
+                            </div>
+                            <div class="flex flex-col sm:flex-row items-center gap-6 text-sm">
+                                <div class="flex items-center gap-6 mb-4 sm:mb-0">
+                                    <a class="text-gray-500 dark:text-gray-400 hover:text-primary dark:hover:text-primary" href="homepage.html">Dashboard</a>
+                                    <a class="text-gray-500 dark:text-gray-400 hover:text-primary dark:hover:text-primary" href="#">Progress</a>
+                                    <a class="text-gray-500 dark:text-gray-400 hover:text-primary dark:hover:text-primary" href="activitiespage.html">Activities</a>
+                                </div>
+                                <div class="flex items-center gap-6">
+                                    <a class="text-gray-500 dark:text-gray-400 hover:text-primary dark:hover:text-primary" href="profile-page.html">Profile</a>
+                                    <a class="text-gray-500 dark:text-gray-400 hover:text-primary dark:hover:text-primary" href="help.html">Help</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="text-center mt-6">
+                            <p class="text-gray-500 dark:text-gray-400 text-sm">© 2025 AcademiaTrack. Track your academic journey with precision.</p>
+                        </div>
+                    </footer>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Mobile menu functionality
+        const menuToggle = document.getElementById('menu-toggle');
+        const mobileMenu = document.getElementById('mobile-menu');
+        const menuOverlay = document.getElementById('menu-overlay');
+
+        function toggleMenu() {
+            mobileMenu.classList.toggle('open');
+            menuOverlay.classList.toggle('open');
+            document.body.style.overflow = mobileMenu.classList.contains('open') ? 'hidden' : '';
+        }
+
+        menuToggle.addEventListener('click', toggleMenu);
+        menuOverlay.addEventListener('click', toggleMenu);
+
+        // Close menu when clicking on links
+        const menuLinks = document.querySelectorAll('#mobile-menu a');
+        menuLinks.forEach(link => {
+            link.addEventListener('click', () => {
+                mobileMenu.classList.remove('open');
+                menuOverlay.classList.remove('open');
+                document.body.style.overflow = '';
+            });
+        });
+
+        // Logout functionality
+        document.getElementById('mobile-logout').addEventListener('click', function() {
+            firebaseUtils.signOut().then(() => {
+                localStorage.removeItem('academiatrack_current_user');
+                window.location.href = 'login-page.html';
+            });
+        });
+
+        // Toast notification function
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = `toast ${type} show`;
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        // Semester and Course Management
+        let currentUser = null;
+        let userData = null;
+        let allExpanded = true; // Track state of all semesters
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check authentication
+            firebaseUtils.getCurrentUser().then(user => {
+                if (!user) {
+                    window.location.href = 'login-page.html';
+                    return;
+                }
+
+                currentUser = user;
+                
+                // Get user data from Firebase
+                firebaseUtils.getUserData(user.uid).then(data => {
+                    if (data) {
+                        userData = data;
+                        
+                        // Initialize semesters array if it doesn't exist
+                        if (!userData.semesters) {
+                            userData.semesters = [];
+                        }
+
+                        // Initialize semester expanded state if it doesn't exist
+                        if (!userData.semesterStates) {
+                            userData.semesterStates = {};
+                        }
+
+                        loadSemesters();
+                        updateCGPA();
+                        setupGlobalEventListeners(); // FIXED: Setup global event listeners
+                    } else {
+                        console.error('User data not found');
+                        window.location.href = 'login-page.html';
+                    }
+                }).catch(error => {
+                    console.error('Error fetching user data:', error);
+                    window.location.href = 'login-page.html';
+                });
+            });
+        });
+
+        // FIXED: Setup global event listeners for course editing
+        function setupGlobalEventListeners() {
+            // Event delegation for course updates - FIXED
+            document.addEventListener('input', function(e) {
+                if (e.target.classList.contains('course-title') || 
+                    e.target.classList.contains('course-units') || 
+                    e.target.classList.contains('course-grade')) {
+                    
+                    const semesterId = e.target.dataset.semester;
+                    const courseId = e.target.dataset.course;
+                    const field = e.target.classList.contains('course-title') ? 'title' : 
+                                 e.target.classList.contains('course-units') ? 'units' : 'grade';
+                    
+                    updateCourse(semesterId, courseId, field, e.target.value);
+                }
+            });
+
+            document.addEventListener('click', function(e) {
+                if (e.target.classList.contains('remove-course') || 
+                    e.target.closest('.remove-course')) {
+                    
+                    const button = e.target.classList.contains('remove-course') ? e.target : e.target.closest('.remove-course');
+                    const semesterId = button.dataset.semester;
+                    const courseId = button.dataset.course;
+                    
+                    removeCourse(semesterId, courseId);
+                }
+            });
+        }
+
+        // Semester Modal Management
+        const semesterModal = document.getElementById('semester-modal');
+        const addSemesterBtn = document.getElementById('add-semester-btn');
+        const addFirstSemesterBtn = document.getElementById('add-first-semester');
+        const cancelSemesterBtn = document.getElementById('cancel-semester');
+        const semesterForm = document.getElementById('semester-form');
+        const toggleAllBtn = document.getElementById('toggle-all-semesters');
+
+        addSemesterBtn.addEventListener('click', () => semesterModal.classList.remove('hidden'));
+        addFirstSemesterBtn.addEventListener('click', () => semesterModal.classList.remove('hidden'));
+        cancelSemesterBtn.addEventListener('click', () => semesterModal.classList.add('hidden'));
+
+        // Toggle all semesters
+        toggleAllBtn.addEventListener('click', function() {
+            allExpanded = !allExpanded;
+            
+            // Update button text and icon
+            const icon = this.querySelector('.material-symbols-outlined');
+            const text = this.querySelector('.truncate');
+            
+            if (allExpanded) {
+                icon.textContent = 'unfold_less';
+                text.textContent = 'Collapse All';
+            } else {
+                icon.textContent = 'unfold_more';
+                text.textContent = 'Expand All';
+            }
+            
+            // Toggle all semesters
+            userData.semesters.forEach(semester => {
+                userData.semesterStates[semester.id] = allExpanded;
+            });
+            
+            saveUserData();
+            loadSemesters();
+        });
+
+        semesterForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const level = document.getElementById('semester-level').value;
+            const type = document.getElementById('semester-type').value;
+            const year = document.getElementById('semester-year').value;
+
+            const semester = {
+                id: `semester-${Date.now()}`,
+                level: level,
+                type: type,
+                year: year,
+                courses: [],
+                gpa: 0.00
+            };
+
+            userData.semesters.push(semester);
+            // Set new semester to expanded state
+            userData.semesterStates[semester.id] = true;
+            saveUserData();
+            semesterModal.classList.add('hidden');
+            semesterForm.reset();
+            
+            showToast(`${type} ${year} semester added successfully!`);
+            loadSemesters();
+            updateCGPA();
+        });
+
+        function loadSemesters() {
+            const container = document.getElementById('semesters-container');
+            const emptyState = document.getElementById('empty-state');
+
+            if (userData.semesters.length === 0) {
+                container.innerHTML = '';
+                emptyState.classList.remove('hidden');
+                return;
+            }
+
+            emptyState.classList.add('hidden');
+            container.innerHTML = '';
+
+            // Sort semesters by level and year
+            userData.semesters.sort((a, b) => {
+                if (a.level !== b.level) {
+                    return parseInt(a.level) - parseInt(b.level);
+                }
+                if (a.year !== b.year) {
+                    return parseInt(a.year) - parseInt(b.year);
+                }
+                return a.type === 'Harmattan' ? -1 : 1; // Harmattan comes before Rain
+            });
+
+            userData.semesters.forEach(semester => {
+                const semesterElement = createSemesterElement(semester);
+                container.appendChild(semesterElement);
+            });
+        }
+
+        function createSemesterElement(semester) {
+            const isExpanded = userData.semesterStates[semester.id] !== false; // Default to true if not set
+            
+            const element = document.createElement('div');
+            element.className = 'fade-in';
+            element.innerHTML = `
+                <div class="flex flex-col items-stretch justify-start rounded-lg shadow-[0_4px_12px_rgba(0,0,0,0.05)] bg-white dark:bg-background-dark border border-border-light dark:border-border-dark">
+                    <!-- Card Header & Toolbar -->
+                    <div class="flex justify-between items-center gap-2 px-4 py-3 border-b border-border-light dark:border-border-dark">
+                        <div class="flex items-center gap-2">
+                            <button class="toggle-semester p-1 rounded-full hover:bg-black/10 dark:hover:bg-white/10 text-text-light/80 dark:text-text-dark/80" data-id="${semester.id}">
+                                <span class="material-symbols-outlined text-xl toggle-icon ${isExpanded ? 'rotated' : ''}">expand_more</span>
+                            </button>
+                            <p class="text-lg font-bold leading-tight tracking-[-0.015em]">${semester.level} Level - ${semester.type} ${semester.year}</p>
+                        </div>
+                        <div class="flex gap-1">
+                            <button class="delete-semester p-2 rounded-full hover:bg-black/10 dark:hover:bg-white/10 text-text-light/80 dark:text-text-dark/80" data-id="${semester.id}">
+                                <span class="material-symbols-outlined text-xl">delete</span>
+                            </button>
+                        </div>
+                    </div>
+                    <!-- Course List -->
+                    <div class="collapsible-content ${isExpanded ? 'expanded' : ''}">
+                        <div class="flex flex-col p-4 space-y-4">
+                            <!-- Course Headers -->
+                            <div class="hidden md:grid grid-cols-12 gap-4 px-2 text-sm font-semibold text-text-light/60 dark:text-text-dark/60">
+                                <div class="col-span-6">COURSE</div>
+                                <div class="col-span-2">UNITS</div>
+                                <div class="col-span-2">GRADE</div>
+                                <div class="col-span-2"></div>
+                            </div>
+                            <div id="courses-${semester.id}" class="space-y-4">
+                                ${semester.courses.map(course => createCourseRow(course, semester.id)).join('')}
+                            </div>
+                            <!-- Add Course Button - FIXED: Always visible in expanded state -->
+                            <div class="pt-2">
+                                <button class="add-course flex items-center justify-center gap-2 w-full h-10 rounded-md border-2 border-dashed border-border-light dark:border-border-dark text-text-light/70 dark:text-text-dark/70 hover:bg-primary/10 hover:border-primary dark:hover:border-primary hover:text-primary dark:hover:text-primary transition-colors" data-semester="${semester.id}">
+                                    <span class="material-symbols-outlined text-xl">add</span>
+                                    <span class="text-sm font-semibold">Add Course</span>
+                                </button>
+                            </div>
+                        </div>
+                        <!-- Card Footer -->
+                        <div class="flex items-center justify-between gap-3 p-4 border-t border-border-light dark:border-border-dark">
+                            <p class="text-lg font-bold">Semester GPA: <span class="text-success">${semester.gpa.toFixed(2)}</span></p>
+                            <button class="calculate-gpa flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-primary text-white text-sm font-medium leading-normal gap-2" data-semester="${semester.id}">
+                                <span class="material-symbols-outlined text-xl">calculate</span>
+                                <span class="truncate">Calculate GPA</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // Add event listeners
+            element.querySelector('.toggle-semester').addEventListener('click', function() {
+                toggleSemester(semester.id);
+            });
+
+            element.querySelector('.delete-semester').addEventListener('click', function() {
+                deleteSemester(semester.id);
+            });
+
+            element.querySelector('.add-course').addEventListener('click', function() {
+                addCourse(semester.id);
+            });
+
+            element.querySelector('.calculate-gpa').addEventListener('click', function() {
+                calculateGPA(semester.id);
+            });
+
+            return element;
+        }
+
+        function createCourseRow(course, semesterId) {
+            return `
+                <div class="course-row grid grid-cols-12 items-center gap-4 p-2 rounded-md hover:bg-background-light dark:hover:bg-white/5" data-id="${course.id}">
+                    <div class="col-span-12 md:col-span-6">
+                        <label class="text-sm font-semibold text-text-light/60 dark:text-text-dark/60 md:hidden">COURSE</label>
+                        <input class="course-title w-full mt-1 bg-background-light dark:bg-background-dark border border-border-light dark:border-border-dark rounded-md h-10 px-3 text-sm focus:ring-primary focus:border-primary" 
+                               value="${course.title}" 
+                               placeholder="e.g., Introduction to Psychology" 
+                               data-semester="${semesterId}"
+                               data-course="${course.id}"/>
+                    </div>
+                    <div class="col-span-6 md:col-span-2">
+                        <label class="text-sm font-semibold text-text-light/60 dark:text-text-dark/60 md:hidden">UNITS</label>
+                        <input class="course-units w-full mt-1 bg-background-light dark:bg-background-dark border border-border-light dark:border-border-dark rounded-md h-10 px-3 text-sm focus:ring-primary focus:border-primary" 
+                               type="number" 
+                               value="${course.units}" 
+                               placeholder="e.g., 3"
+                               data-semester="${semesterId}"
+                               data-course="${course.id}"/>
+                    </div>
+                    <div class="col-span-6 md:col-span-2">
+                        <label class="text-sm font-semibold text-text-light/60 dark:text-text-dark/60 md:hidden">GRADE</label>
+                        <select class="course-grade w-full mt-1 bg-background-light dark:bg-background-dark border border-border-light dark:border-border-dark rounded-md h-10 px-3 text-sm focus:ring-primary focus:border-primary"
+                                data-semester="${semesterId}"
+                                data-course="${course.id}">
+                            <option value="">Select Grade</option>
+                            <option value="A" ${course.grade === 'A' ? 'selected' : ''}>A (5.0)</option>
+                            <option value="B" ${course.grade === 'B' ? 'selected' : ''}>B (4.0)</option>
+                            <option value="C" ${course.grade === 'C' ? 'selected' : ''}>C (3.0)</option>
+                            <option value="D" ${course.grade === 'D' ? 'selected' : ''}>D (2.0)</option>
+                            <option value="E" ${course.grade === 'E' ? 'selected' : ''}>E (1.0)</option>
+                            <option value="F" ${course.grade === 'F' ? 'selected' : ''}>F (0.0)</option>
+                        </select>
+                    </div>
+                    <div class="col-span-12 md:col-span-2 flex justify-end">
+                        <button class="remove-course p-2 rounded-full hover:bg-black/10 dark:hover:bg-white/10 text-text-light/80 dark:text-text-dark/80" 
+                                data-semester="${semesterId}"
+                                data-course="${course.id}">
+                            <span class="material-symbols-outlined text-xl">remove_circle_outline</span>
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function toggleSemester(semesterId) {
+            // Toggle the expanded state
+            userData.semesterStates[semesterId] = !userData.semesterStates[semesterId];
+            saveUserData();
+            loadSemesters();
+        }
+
+        function addCourse(semesterId) {
+            const semester = userData.semesters.find(s => s.id === semesterId);
+            if (semester) {
+                const course = {
+                    id: `course-${Date.now()}`,
+                    title: '',
+                    units: '',
+                    grade: ''
+                };
+                semester.courses.push(course);
+                saveUserData();
+                loadSemesters();
+                showToast('Course added successfully!');
+            }
+        }
+
+        function deleteSemester(semesterId) {
+            if (confirm('Are you sure you want to delete this semester? This action cannot be undone.')) {
+                userData.semesters = userData.semesters.filter(s => s.id !== semesterId);
+                // Also remove the semester state
+                delete userData.semesterStates[semesterId];
+                saveUserData();
+                loadSemesters();
+                updateCGPA();
+                showToast('Semester deleted successfully!');
+            }
+        }
+
+        function calculateGPA(semesterId) {
+            const semester = userData.semesters.find(s => s.id === semesterId);
+            if (!semester) return;
+
+            let totalGradePoints = 0;
+            let totalUnits = 0;
+            let validCourses = 0;
+
+            semester.courses.forEach(course => {
+                if (course.units && course.grade) {
+                    const units = parseFloat(course.units);
+                    const gradePoint = getGradePoint(course.grade);
+                    
+                    if (!isNaN(units) && gradePoint !== null) {
+                        totalGradePoints += units * gradePoint;
+                        totalUnits += units;
+                        validCourses++;
+                    }
+                }
+            });
+
+            if (totalUnits > 0) {
+                semester.gpa = totalGradePoints / totalUnits;
+                saveUserData();
+                loadSemesters();
+                updateCGPA();
+                showToast(`GPA calculated: ${semester.gpa.toFixed(2)}`);
+            } else {
+                showToast('Please add courses with units and grades to calculate GPA', 'error');
+            }
+        }
+
+        function getGradePoint(grade) {
+            const gradePoints = {
+                'A': 5.0,
+                'B': 4.0,
+                'C': 3.0,
+                'D': 2.0,
+                'E': 1.0,
+                'F': 0.0
+            };
+            return gradePoints[grade] || null;
+        }
+
+        function updateCGPA() {
+            const cgpaContainer = document.getElementById('cgpa-container');
+            const cgpaValue = document.getElementById('cgpa-value');
+            
+            let totalGradePoints = 0;
+            let totalUnits = 0;
+            let hasValidSemesters = false;
+
+            userData.semesters.forEach(semester => {
+                if (semester.gpa > 0) {
+                    // Calculate total units for this semester
+                    let semesterUnits = 0;
+                    semester.courses.forEach(course => {
+                        if (course.units && course.grade) {
+                            const units = parseFloat(course.units);
+                            const gradePoint = getGradePoint(course.grade);
+                            
+                            if (!isNaN(units) && gradePoint !== null) {
+                                semesterUnits += units;
+                            }
+                        }
+                    });
+                    
+                    if (semesterUnits > 0) {
+                        totalGradePoints += semester.gpa * semesterUnits;
+                        totalUnits += semesterUnits;
+                        hasValidSemesters = true;
+                    }
+                }
+            });
+
+            if (hasValidSemesters && totalUnits > 0) {
+                const cgpa = totalGradePoints / totalUnits;
+                cgpaValue.textContent = cgpa.toFixed(2);
+                cgpaContainer.classList.remove('hidden');
+            } else {
+                cgpaContainer.classList.add('hidden');
+            }
+        }
+
+        function saveUserData() {
+            // Update user data in Firebase
+            firebaseUtils.updateUserData(currentUser.uid, userData).then(() => {
+                // Also update localStorage for quick access
+                localStorage.setItem('academiatrack_current_user', JSON.stringify(userData));
+            }).catch(error => {
+                console.error('Error saving user data:', error);
+                showToast('Error saving progress data', 'error');
+            });
+        }
+
+        // FIXED: These functions are now properly called from global event listeners
+        function updateCourse(semesterId, courseId, field, value) {
+            const semester = userData.semesters.find(s => s.id === semesterId);
+            if (semester) {
+                const course = semester.courses.find(c => c.id === courseId);
+                if (course) {
+                    course[field] = value;
+                    saveUserData();
+                    // Recalculate GPA if grade or units are updated
+                    if (field === 'grade' || field === 'units') {
+                        calculateGPA(semesterId);
+                    }
+                }
+            }
+        }
+
+        function removeCourse(semesterId, courseId) {
+            const semester = userData.semesters.find(s => s.id === semesterId);
+            if (semester) {
+                semester.courses = semester.courses.filter(c => c.id !== courseId);
+                saveUserData();
+                loadSemesters();
+                updateCGPA();
+                showToast('Course removed successfully!');
+            }
+        }
+    </script>
+</body>
+</html>

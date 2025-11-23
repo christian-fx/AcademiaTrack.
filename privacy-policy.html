@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Privacy Policy - AcademiaTrack</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com" rel="preconnect"/>
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+    <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;700;900&amp;display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#135bec",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#101622",
+                        "success": "#10B981",
+                    },
+                    fontFamily: {
+                        "display": ["Lexend", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            font-size: 24px;
+        }
+        
+        /* Mobile Menu Styles */
+        .mobile-menu {
+            transform: translateX(-100%);
+            transition: transform 0.3s ease-in-out;
+        }
+        
+        .mobile-menu.open {
+            transform: translateX(0);
+        }
+        
+        .menu-overlay {
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease-in-out;
+        }
+        
+        .menu-overlay.open {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .policy-content h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+            color: #111827;
+        }
+        
+        .dark .policy-content h2 {
+            color: #f9fafb;
+        }
+        
+        .policy-content h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-top: 1.5rem;
+            margin-bottom: 0.75rem;
+            color: #374151;
+        }
+        
+        .dark .policy-content h3 {
+            color: #e5e7eb;
+        }
+        
+        .policy-content p {
+            margin-bottom: 1rem;
+            line-height: 1.6;
+        }
+        
+        .policy-content ul, .policy-content ol {
+            margin-bottom: 1rem;
+            padding-left: 1.5rem;
+        }
+        
+        .policy-content li {
+            margin-bottom: 0.5rem;
+            line-height: 1.6;
+        }
+        
+        .policy-content a {
+            color: #135bec;
+            text-decoration: underline;
+        }
+        
+        .dark .policy-content a {
+            color: #60a5fa;
+        }
+        
+        .policy-content a:hover {
+            opacity: 0.8;
+        }
+        
+        .highlight-box {
+            background-color: rgba(19, 91, 236, 0.05);
+            border-left: 4px solid #135bec;
+            padding: 1rem 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 0 0.5rem 0.5rem 0;
+        }
+        
+        .dark .highlight-box {
+            background-color: rgba(19, 91, 236, 0.1);
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-[#343A40] dark:text-gray-200">
+    <div class="relative flex min-h-screen w-full flex-col group/design-root overflow-x-hidden">
+        <div class="layout-container flex h-full grow flex-col">
+            <div class="px-4 sm:px-10 md:px-20 lg:px-40 flex flex-1 justify-center py-5">
+                <div class="layout-content-container flex flex-col max-w-[960px] flex-1">
+                    <!-- TopNavBar -->
+                    <header class="flex items-center justify-between whitespace-nowrap border-b border-solid border-gray-200 dark:border-gray-700 px-4 sm:px-10 py-3">
+                        <div class="flex items-center gap-4 text-gray-900 dark:text-white">
+                            <a href="index.html" class="flex items-center gap-4">
+                                <div class="size-6 text-primary">
+                                    <svg fill="none" viewbox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+                                        <g clip-path="url(#clip0_6_330)">
+                                            <path clip-rule="evenodd" d="M24 0.757355L47.2426 24L24 47.2426L0.757355 24L24 0.757355ZM21 35.7574V12.2426L9.24264 24L21 35.7574Z" fill="currentColor" fill-rule="evenodd"></path>
+                                        </g>
+                                    </svg>
+                                </div>
+                                <h2 class="text-lg font-bold leading-tight tracking-[-0.015em]">AcademiaTrack</h2>
+                            </a>
+                        </div>
+                        <div class="hidden md:flex flex-1 justify-end gap-8">
+                            <div class="flex items-center gap-9">
+                                <a class="text-sm font-medium leading-normal text-gray-800 dark:text-gray-300 hover:text-primary dark:hover:text-primary" href="index.html#features">Features</a>
+                                <a class="text-sm font-medium leading-normal text-gray-800 dark:text-gray-300 hover:text-primary dark:hover:text-primary" href="index.html#stats">Statistics</a>
+                                <a class="text-sm font-medium leading-normal text-gray-800 dark:text-gray-300 hover:text-primary dark:hover:text-primary" href="index.html#about">About</a>
+                            </div>
+                            <div class="flex gap-2" id="auth-buttons">
+                                <a href="signup-page.html" class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-primary text-white text-sm font-bold leading-normal tracking-[0.015em] hover:opacity-90 transition-opacity">
+                                    <span class="truncate">Sign Up</span>
+                                </a>
+                                <a href="login-page.html" class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-gray-200 text-sm font-bold leading-normal tracking-[0.015em] hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors">
+                                    <span class="truncate">Login</span>
+                                </a>
+                            </div>
+                            <div class="hidden gap-2" id="user-menu">
+                                <a href="homepage.html" class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-primary text-white text-sm font-bold leading-normal tracking-[0.015em] hover:opacity-90 transition-opacity">
+                                    <span class="truncate">Dashboard</span>
+                                </a>
+                                <button id="logout-btn" class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-gray-200 text-sm font-bold leading-normal tracking-[0.015em] hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors">
+                                    <span class="truncate">Logout</span>
+                                </button>
+                            </div>
+                        </div>
+                        <button id="menu-toggle" class="md:hidden p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800">
+                            <span class="material-symbols-outlined text-gray-800 dark:text-gray-200">menu</span>
+                        </button>
+                    </header>
+
+                    <!-- Mobile Menu -->
+                    <div id="mobile-menu" class="mobile-menu fixed top-0 left-0 h-full w-64 bg-white dark:bg-gray-800 shadow-lg z-50 md:hidden">
+                        <div class="p-4 border-b border-gray-200 dark:border-gray-700">
+                            <div class="flex items-center gap-3">
+                                <div class="size-6 text-primary">
+                                    <svg fill="none" viewbox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+                                        <g clip-path="url(#clip0_6_330)">
+                                            <path clip-rule="evenodd" d="M24 0.757355L47.2426 24L24 47.2426L0.757355 24L24 0.757355ZM21 35.7574V12.2426L9.24264 24L21 35.7574Z" fill="currentColor" fill-rule="evenodd"></path>
+                                        </g>
+                                    </svg>
+                                </div>
+                                <h2 class="text-lg font-bold">AcademiaTrack</h2>
+                            </div>
+                        </div>
+                        <nav class="p-4">
+                            <ul class="space-y-4">
+                                <li>
+                                    <a href="index.html#features" class="block text-gray-800 dark:text-gray-200 hover:text-primary dark:hover:text-primary py-2">Features</a>
+                                </li>
+                                <li>
+                                    <a href="index.html#stats" class="block text-gray-800 dark:text-gray-200 hover:text-primary dark:hover:text-primary py-2">Statistics</a>
+                                </li>
+                                <li>
+                                    <a href="index.html#about" class="block text-gray-800 dark:text-gray-200 hover:text-primary dark:hover:text-primary py-2">About</a>
+                                </li>
+                                <li class="pt-4 border-t border-gray-200 dark:border-gray-700" id="mobile-auth-buttons">
+                                    <a href="signup-page.html" class="block w-full text-center bg-primary text-white py-2 px-4 rounded-lg hover:opacity-90 transition-opacity mb-2">Sign Up</a>
+                                    <a href="login-page.html" class="block w-full text-center bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-gray-200 py-2 px-4 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors">Login</a>
+                                </li>
+                                <li class="pt-4 border-t border-gray-200 dark:border-gray-700 hidden" id="mobile-user-menu">
+                                    <a href="homepage.html" class="block w-full text-center bg-primary text-white py-2 px-4 rounded-lg hover:opacity-90 transition-opacity mb-2">Dashboard</a>
+                                    <button id="mobile-logout-btn" class="block w-full text-center bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-gray-200 py-2 px-4 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors">Logout</button>
+                                </li>
+                            </ul>
+                        </nav>
+                    </div>
+
+                    <!-- Menu Overlay -->
+                    <div id="menu-overlay" class="menu-overlay fixed inset-0 bg-black bg-opacity-50 z-40 md:hidden"></div>
+
+                    <!-- Privacy Policy Content -->
+                    <main class="py-8 px-4">
+                        <div class="max-w-4xl mx-auto">
+                            <div class="mb-8">
+                                <h1 class="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">Privacy Policy</h1>
+                                <p class="text-gray-600 dark:text-gray-400">Last updated: December 1, 2024</p>
+                            </div>
+                            
+                            <div class="policy-content bg-white dark:bg-gray-800 rounded-xl p-6 md:p-8 shadow-sm border border-gray-200 dark:border-gray-700">
+                                <div class="mb-8">
+                                    <p class="text-lg">At AcademiaTrack, we take your privacy seriously. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our academic tracking service.</p>
+                                </div>
+                                
+                                <div class="highlight-box">
+                                    <p class="font-medium">Please read this privacy policy carefully. By using AcademiaTrack, you consent to the practices described in this policy.</p>
+                                </div>
+                                
+                                <h2>1. Information We Collect</h2>
+                                
+                                <h3>Personal Information</h3>
+                                <p>When you register for an account, we may collect personal information that can identify you, such as:</p>
+                                <ul class="list-disc ml-6">
+                                    <li>Full name</li>
+                                    <li>Email address</li>
+                                    <li>Academic institution information</li>
+                                    <li>Student identification details (if provided)</li>
+                                </ul>
+                                
+                                <h3>Academic Information</h3>
+                                <p>To provide our services, we collect academic data including:</p>
+                                <ul class="list-disc ml-6">
+                                    <li>Course information and schedules</li>
+                                    <li>Grades and academic performance data</li>
+                                    <li>Assignment deadlines and details</li>
+                                    <li>Semester information</li>
+                                    <li>Academic goals and progress tracking</li>
+                                </ul>
+                                
+                                <h3>Technical Information</h3>
+                                <p>We automatically collect certain information when you visit our website, including:</p>
+                                <ul class="list-disc ml-6">
+                                    <li>IP address and browser type</li>
+                                    <li>Device information</li>
+                                    <li>Usage patterns and preferences</li>
+                                    <li>Cookies and similar tracking technologies</li>
+                                </ul>
+                                
+                                <h2>2. How We Use Your Information</h2>
+                                <p>We use the information we collect to:</p>
+                                <ul class="list-disc ml-6">
+                                    <li>Provide, maintain, and improve our services</li>
+                                    <li>Process your transactions and send related information</li>
+                                    <li>Send you technical notices, updates, and support messages</li>
+                                    <li>Respond to your comments, questions, and requests</li>
+                                    <li>Monitor and analyze trends, usage, and activities</li>
+                                    <li>Personalize your experience and deliver content relevant to your academic interests</li>
+                                    <li>Detect, prevent, and address technical issues</li>
+                                </ul>
+                                
+                                <h2>3. Information Sharing and Disclosure</h2>
+                                <p>We do not sell, trade, or otherwise transfer your personal information to third parties without your consent, except in the following circumstances:</p>
+                                
+                                <h3>Service Providers</h3>
+                                <p>We may share your information with third-party vendors, service providers, and contractors who perform services on our behalf and require access to such information to carry out their work.</p>
+                                
+                                <h3>Legal Requirements</h3>
+                                <p>We may disclose your information if required to do so by law or in response to valid requests by public authorities (e.g., a court or government agency).</p>
+                                
+                                <h3>Business Transfers</h3>
+                                <p>In connection with any merger, sale of company assets, financing, or acquisition of all or a portion of our business to another company, we may transfer your information.</p>
+                                
+                                <h3>Aggregated or De-identified Data</h3>
+                                <p>We may share aggregated or de-identified information that cannot reasonably be used to identify you for research or analytical purposes.</p>
+                                
+                                <h2>4. Data Security</h2>
+                                <p>We implement appropriate technical and organizational security measures designed to protect your personal information against accidental or unlawful destruction, loss, alteration, unauthorized disclosure, or access.</p>
+                                
+                                <p>However, no method of transmission over the Internet or electronic storage is 100% secure. While we strive to use commercially acceptable means to protect your personal information, we cannot guarantee its absolute security.</p>
+                                
+                                <h2>5. Data Retention</h2>
+                                <p>We retain your personal information for as long as necessary to fulfill the purposes outlined in this Privacy Policy, unless a longer retention period is required or permitted by law.</p>
+                                
+                                <p>When we no longer need to process your personal information, we will either delete or anonymize it.</p>
+                                
+                                <h2>6. Your Rights and Choices</h2>
+                                <p>Depending on your location, you may have the following rights regarding your personal information:</p>
+                                <ul class="list-disc ml-6">
+                                    <li><strong>Access:</strong> You can request copies of your personal information.</li>
+                                    <li><strong>Correction:</strong> You can request that we correct any information you believe is inaccurate.</li>
+                                    <li><strong>Deletion:</strong> You can request that we delete your personal information under certain conditions.</li>
+                                    <li><strong>Restriction:</strong> You can request that we restrict the processing of your personal information.</li>
+                                    <li><strong>Data Portability:</strong> You can request that we transfer the data we have collected to another organization, or directly to you.</li>
+                                </ul>
+                                
+                                <p>To exercise these rights, please contact us using the information provided in the "Contact Us" section.</p>
+                                
+                                <h2>7. Cookies and Tracking Technologies</h2>
+                                <p>We use cookies and similar tracking technologies to track activity on our service and hold certain information. Cookies are files with a small amount of data that may include an anonymous unique identifier.</p>
+                                
+                                <p>You can instruct your browser to refuse all cookies or to indicate when a cookie is being sent. However, if you do not accept cookies, you may not be able to use some portions of our service.</p>
+                                
+                                <h2>8. Children's Privacy</h2>
+                                <p>Our service is intended for use by students in higher education institutions. We do not knowingly collect personally identifiable information from children under 13. If you are a parent or guardian and you are aware that your child has provided us with personal information, please contact us.</p>
+                                
+                                <h2>9. International Data Transfers</h2>
+                                <p>Your information, including personal data, may be transferred to — and maintained on — computers located outside of your state, province, country, or other governmental jurisdiction where the data protection laws may differ from those of your jurisdiction.</p>
+                                
+                                <p>If you are located outside Nigeria and choose to provide information to us, please note that we transfer the data to Nigeria and process it there.</p>
+                                
+                                <h2>10. Changes to This Privacy Policy</h2>
+                                <p>We may update our Privacy Policy from time to time. We will notify you of any changes by posting the new Privacy Policy on this page and updating the "Last updated" date.</p>
+                                
+                                <p>You are advised to review this Privacy Policy periodically for any changes. Changes to this Privacy Policy are effective when they are posted on this page.</p>
+                                
+                                <h2>11. Contact Us</h2>
+                                <p>If you have any questions about this Privacy Policy, please contact us:</p>
+                                <div class="mt-4 p-4 bg-gray-50 dark:bg-gray-900 rounded-lg">
+                                    <p><strong>Email:</strong> privacy@academiatrack.com</p>
+                                    <p><strong>Address:</strong> AcademiaTrack Privacy Team<br>FUTO, Owerri, Nigeria</p>
+                                </div>
+                                
+                                <div class="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
+                                    <p class="text-sm text-gray-500 dark:text-gray-400">By using AcademiaTrack, you acknowledge that you have read and understood this Privacy Policy.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </main>
+
+                    <!-- Footer -->
+                    <footer class="w-full mt-16 border-t border-gray-200 dark:border-gray-700 pt-8 pb-12">
+                        <div class="flex flex-col sm:flex-row items-center justify-between gap-4 px-4">
+                            <div class="flex items-center gap-4 text-gray-900 dark:text-white mb-4 sm:mb-0">
+                                <a href="index.html" class="flex items-center gap-4">
+                                    <div class="size-6 text-primary">
+                                        <svg fill="none" viewbox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+                                            <g clip-path="url(#clip0_6_330)">
+                                                <path clip-rule="evenodd" d="M24 0.757355L47.2426 24L24 47.2426L0.757355 24L24 0.757355ZM21 35.7574V12.2426L9.24264 24L21 35.7574Z" fill="currentColor" fill-rule="evenodd"></path>
+                                            </g>
+                                        </svg>
+                                    </div>
+                                    <h3 class="text-lg font-bold">AcademiaTrack</h3>
+                                </a>
+                            </div>
+                            <div class="flex flex-col sm:flex-row items-center gap-6 text-sm">
+                                <div class="flex items-center gap-6 mb-4 sm:mb-0">
+                                    <a class="text-gray-500 dark:text-gray-400 hover:text-primary dark:hover:text-primary" href="index.html#features">Features</a>
+                                    <a class="text-gray-500 dark:text-gray-400 hover:text-primary dark:hover:text-primary" href="index.html#stats">Statistics</a>
+                                    <a class="text-gray-500 dark:text-gray-400 hover:text-primary dark:hover:text-primary" href="index.html#about">About</a>
+                                </div>
+                                <div class="flex items-center gap-6">
+                                    <a class="text-gray-500 dark:text-gray-400 hover:text-primary dark:hover:text-primary" href="Terms.html">Terms of Service</a>
+                                    <a class="text-primary font-medium" href="privacy-policy.html">Privacy Policy</a>
+                                     <a class="text-gray-500 dark:text-gray-400 hover:text-primary dark:hover:text-primary" href="help.html">Help</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="text-center mt-6">
+                            <p class="text-gray-500 dark:text-gray-400 text-sm">© 2025 AcademiaTrack. Committed to protecting your privacy.</p>
+                        </div>
+                    </footer>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Mobile menu functionality
+        const menuToggle = document.getElementById('menu-toggle');
+        const mobileMenu = document.getElementById('mobile-menu');
+        const menuOverlay = document.getElementById('menu-overlay');
+
+        function toggleMenu() {
+            mobileMenu.classList.toggle('open');
+            menuOverlay.classList.toggle('open');
+            document.body.style.overflow = mobileMenu.classList.contains('open') ? 'hidden' : '';
+        }
+
+        menuToggle.addEventListener('click', toggleMenu);
+        menuOverlay.addEventListener('click', toggleMenu);
+
+        // Close menu when clicking on links
+        const menuLinks = document.querySelectorAll('#mobile-menu a');
+        menuLinks.forEach(link => {
+            link.addEventListener('click', () => {
+                mobileMenu.classList.remove('open');
+                menuOverlay.classList.remove('open');
+                document.body.style.overflow = '';
+            });
+        });
+
+        // Check if user is logged in and update UI accordingly
+        function checkUserLogin() {
+            const currentUser = JSON.parse(localStorage.getItem('academiatrack_current_user') || 'null');
+            
+            if (currentUser && currentUser.fullName) {
+                // User is logged in - update UI
+                document.getElementById('auth-buttons').classList.add('hidden');
+                document.getElementById('user-menu').classList.remove('hidden');
+                document.getElementById('mobile-auth-buttons').classList.add('hidden');
+                document.getElementById('mobile-user-menu').classList.remove('hidden');
+            }
+        }
+
+        // Logout functionality
+        function setupLogout() {
+            const logoutBtn = document.getElementById('logout-btn');
+            const mobileLogoutBtn = document.getElementById('mobile-logout-btn');
+            
+            function logout() {
+                localStorage.removeItem('academiatrack_current_user');
+                window.location.href = 'index.html';
+            }
+            
+            if (logoutBtn) logoutBtn.addEventListener('click', logout);
+            if (mobileLogoutBtn) mobileLogoutBtn.addEventListener('click', logout);
+        }
+
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            checkUserLogin();
+            setupLogout();
+        });
+    </script>
+</body>
+</html>

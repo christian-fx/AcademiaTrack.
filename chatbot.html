@@ -1,0 +1,1115 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>AcademiaBot - AI Academic Assistant</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@100..900&amp;display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
+    
+    <!-- Firebase SDK -->
+    <script type="module">
+        // Import Firebase modules
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getDatabase, ref, onValue, set, push, get, child } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+        // Your Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyC8Ecav2o0ZyeMph0k1yvNnaKEPzFzy7DA",
+            authDomain: "academiatrack-app-2025.firebaseapp.com",
+            databaseURL: "https://academiatrack-app-2025-default-rtdb.firebaseio.com",
+            projectId: "academiatrack-app-2025",
+            storageBucket: "academiatrack-app-2025.firebasestorage.app",
+            messagingSenderId: "574483624184",
+            appId: "1:574483624184:web:8f037934e27604fb0d0b0d"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const database = getDatabase(app);
+
+        // Make Firebase available globally
+        window.firebaseApp = app;
+        window.firebaseAuth = auth;
+        window.firebaseDatabase = database;
+        
+        console.log("Firebase initialized successfully");
+
+        // Auth state listener
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                console.log("User is signed in:", user.uid);
+                window.currentUser = user;
+                initializeBotWithFirebase(user);
+            } else {
+                console.log("User is signed out");
+                // Redirect to login page or show login form
+                window.location.href = 'login.html';
+            }
+        });
+
+        // Logout functionality
+        function setupLogout() {
+            const logoutButtons = document.querySelectorAll('#mobile-logout, #desktop-logout');
+            logoutButtons.forEach(button => {
+                if (button) {
+                    button.addEventListener('click', () => {
+                        signOut(auth).then(() => {
+                            console.log("User signed out successfully");
+                            window.location.href = 'login.html';
+                        }).catch((error) => {
+                            console.error("Sign out error:", error);
+                        });
+                    });
+                }
+            });
+        }
+
+        // Initialize bot with Firebase data
+        async function initializeBotWithFirebase(user) {
+            console.log("=== ACADEMIABOT FIREBASE INITIALIZATION ===");
+            
+            try {
+                // Load user data from Firebase
+                const userData = await loadUserDataFromFirebase(user.uid);
+                window.currentUserData = userData;
+                
+                console.log("Firebase user data:", userData);
+                
+                loadUserAcademicData(userData);
+                loadConversationHistoryFromFirebase(user.uid);
+                updateUserStats();
+                updateSuggestedQuestions();
+                showPersonalizedWelcome();
+                
+                // Setup logout after everything is loaded
+                setTimeout(setupLogout, 100);
+                
+            } catch (error) {
+                console.error("Error initializing bot with Firebase:", error);
+                // Fallback to localStorage if Firebase fails
+                initializeBotWithLocalStorage();
+            }
+        }
+
+        // Load user data from Firebase
+        async function loadUserDataFromFirebase(userId) {
+            try {
+                const userRef = ref(database, 'users/' + userId);
+                const snapshot = await get(userRef);
+                
+                if (snapshot.exists()) {
+                    return snapshot.val();
+                } else {
+                    console.log("No user data found in Firebase");
+                    return {};
+                }
+            } catch (error) {
+                console.error("Error loading user data from Firebase:", error);
+                throw error;
+            }
+        }
+
+        // Load conversation history from Firebase
+        async function loadConversationHistoryFromFirebase(userId) {
+            try {
+                const conversationRef = ref(database, 'conversations/' + userId);
+                const snapshot = await get(conversationRef);
+                
+                if (snapshot.exists()) {
+                    window.conversationHistory = snapshot.val().messages || [];
+                    // Display conversation history
+                    window.conversationHistory.forEach(msg => {
+                        addMessageToChat(msg.text, msg.sender);
+                    });
+                } else {
+                    window.conversationHistory = [];
+                }
+            } catch (error) {
+                console.error("Error loading conversation history:", error);
+                window.conversationHistory = [];
+            }
+        }
+
+        // Save conversation to Firebase
+        async function saveConversationToFirebase(userId, conversation) {
+            try {
+                const conversationRef = ref(database, 'conversations/' + userId);
+                await set(conversationRef, {
+                    messages: conversation,
+                    lastUpdated: Date.now()
+                });
+                console.log("Conversation saved to Firebase");
+            } catch (error) {
+                console.error("Error saving conversation to Firebase:", error);
+                // Fallback to localStorage
+                localStorage.setItem('academiabot_conversation', JSON.stringify(conversation));
+            }
+        }
+
+        // Save user stats to Firebase
+        async function saveUserStatsToFirebase(userId, stats) {
+            try {
+                const statsRef = ref(database, 'userStats/' + userId);
+                await set(statsRef, {
+                    ...stats,
+                    lastCalculated: Date.now()
+                });
+            } catch (error) {
+                console.error("Error saving user stats to Firebase:", error);
+            }
+        }
+
+        // Make functions available globally
+        window.loadUserDataFromFirebase = loadUserDataFromFirebase;
+        window.saveConversationToFirebase = saveConversationToFirebase;
+        window.saveUserStatsToFirebase = saveUserStatsToFirebase;
+        window.loadConversationHistoryFromFirebase = loadConversationHistoryFromFirebase;
+
+    </script>
+
+    <script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "primary": "#135bec",
+              "background-light": "#f6f6f8",
+              "background-dark": "#101622",
+              "ai-primary": "#10B981",
+              "ai-secondary": "#3B82F6",
+              "ai-accent": "#8B5CF6"
+            },
+            fontFamily: {
+              "display": ["Lexend", "sans-serif"]
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+    
+    <style>
+        /* Your existing CSS styles remain the same */
+        .typing-indicator {
+            display: inline-block;
+            position: relative;
+        }
+        
+        .typing-indicator span {
+            display: inline-block;
+            animation: typing 1.4s infinite;
+        }
+        
+        .typing-indicator span:nth-child(2) {
+            animation-delay: 0.1s;
+        }
+        
+        .typing-indicator span:nth-child(3) {
+            animation-delay: 0.2s;
+        }
+        
+        @keyframes typing {
+            0%, 60%, 100% { transform: translateY(0); }
+            30% { transform: translateY(-10px); }
+        }
+        
+        .message-fade-in {
+            animation: messageFadeIn 0.3s ease-out;
+        }
+        
+        @keyframes messageFadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .chat-container {
+            scroll-behavior: smooth;
+        }
+        
+        .chat-container::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .chat-container::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+        
+        .chat-container::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 10px;
+        }
+        
+        .dark .chat-container::-webkit-scrollbar-track {
+            background: #374151;
+        }
+        
+        .dark .chat-container::-webkit-scrollbar-thumb {
+            background: #6B7280;
+        }
+        
+        .pulse-glow {
+            animation: pulse-glow 2s infinite;
+        }
+        
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 0 5px rgba(16, 185, 129, 0.4); }
+            50% { box-shadow: 0 0 20px rgba(16, 185, 129, 0.8); }
+        }
+        
+        .bounce-in {
+            animation: bounceIn 0.6s ease-out;
+        }
+        
+        @keyframes bounceIn {
+            0% { transform: scale(0.3); opacity: 0; }
+            50% { transform: scale(1.05); }
+            70% { transform: scale(0.9); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        
+        .floating {
+            animation: floating 3s ease-in-out infinite;
+        }
+        
+        @keyframes floating {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+    </style>
+</head>
+<body class="font-display bg-background-light dark:bg-background-dark">
+    <div class="relative flex min-h-screen w-full flex-col group/design-root overflow-x-hidden">
+        <!-- TopNavBar -->
+        <header class="sticky top-0 z-10 w-full bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-sm border-b border-gray-200 dark:border-gray-800">
+            <div class="container mx-auto">
+                <div class="flex items-center justify-between whitespace-nowrap px-4 sm:px-6 lg:px-8 py-3">
+                    <div class="flex items-center gap-4 text-gray-900 dark:text-white">
+                        <div class="size-6 text-primary">
+                            <svg fill="currentColor" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+                                <g clip-path="url(#clip0_6_330)">
+                                    <path clip-rule="evenodd" d="M24 0.757355L47.2426 24L24 47.2426L0.757355 24L24 0.757355ZM21 35.7574V12.2426L9.24264 24L21 35.7574Z" fill="currentColor" fill-rule="evenodd"></path>
+                                </g>
+                                <defs>
+                                    <clipPath id="clip0_6_330"><rect fill="white" height="48" width="48"></rect></clipPath>
+                                </defs>
+                            </svg>
+                        </div>
+                        <h2 class="text-lg font-bold tracking-[-0.015em] text-gray-900 dark:text-white">AcademiaTrack</h2>
+                    </div>
+                    <div class="flex flex-1 justify-end items-center gap-6">
+                        <nav class="hidden md:flex items-center gap-8">
+                            <a class="text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-primary dark:hover:text-primary" href="homepage.html">Dashboard</a>
+                            <a class="text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-primary dark:hover:text-primary" href="progresspage.html">Progress</a>
+                            <a class="text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-primary dark:hover:text-primary" href="activities-page.html">Activities</a>
+                            <a class="text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-primary dark:hover:text-primary" href="profile-page.html">Profile</a>
+                            <a class="text-sm font-bold text-ai-primary dark:text-ai-primary" href="#">AcademiaBot</a>
+                            <button id="desktop-logout" class="text-sm font-medium text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300">
+                                Logout
+                            </button>
+                        </nav>
+                    </div>
+                    <button id="menu-toggle" class="md:hidden p-2 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-800">
+                        <span class="material-symbols-outlined text-gray-800 dark:text-gray-200">menu</span>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="fixed top-0 left-0 h-full w-64 bg-white dark:bg-gray-800 shadow-lg z-50 md:hidden transform -translate-x-full transition-transform duration-300">
+            <div class="p-4 border-b border-gray-200 dark:border-gray-700">
+                <div class="flex items-center gap-3">
+                    <div class="size-6 text-primary">
+                        <svg fill="currentColor" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+                            <g clip-path="url(#clip0_6_330)">
+                                <path clip-rule="evenodd" d="M24 0.757355L47.2426 24L24 47.2426L0.757355 24L24 0.757355ZM21 35.7574V12.2426L9.24264 24L21 35.7574Z" fill="currentColor" fill-rule="evenodd"></path>
+                            </g>
+                        </svg>
+                    </div>
+                    <h2 class="text-lg font-bold">AcademiaTrack</h2>
+                </div>
+            </div>
+            <nav class="p-4">
+                <ul class="space-y-4">
+                    <li>
+                        <a href="homepage.html" class="block text-gray-800 dark:text-gray-200 hover:text-primary dark:hover:text-primary py-2">Dashboard</a>
+                    </li>
+                    <li>
+                        <a href="progresspage.html" class="block text-gray-800 dark:text-gray-200 hover:text-primary dark:hover:text-primary py-2">Progress</a>
+                    </li>
+                    <li>
+                        <a href="activitiespage.html" class="block text-gray-800 dark:text-gray-200 hover:text-primary dark:hover:text-primary py-2">Activities</a>
+                    </li>
+                    <li>
+                        <a href="profile-page.html" class="block text-gray-800 dark:text-gray-200 hover:text-primary dark:hover:text-primary py-2">Profile</a>
+                    </li>
+                    <li>
+                        <a href="#" class="block text-primary font-medium py-2">ChatBot</a>
+                    </li>
+                    <li class="pt-4 border-t border-gray-200 dark:border-gray-700">
+                        <button id="mobile-logout" class="block w-full text-center bg-red-500 text-white py-2 px-4 rounded-lg hover:bg-red-600 transition-colors">
+                            Logout
+                        </button>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+
+        <main class="flex-grow container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div class="max-w-4xl mx-auto">
+                <!-- Header Section -->
+                <div class="text-center mb-8">
+                    <div class="floating flex items-center justify-center gap-3 mb-4">
+                        <div class="w-20 h-20 bg-gradient-to-r from-ai-primary via-ai-accent to-ai-secondary rounded-full flex items-center justify-center shadow-lg pulse-glow">
+                            <span class="material-symbols-outlined text-white text-3xl">smart_toy</span>
+                        </div>
+                    </div>
+                    <h1 class="text-4xl lg:text-5xl font-black tracking-tight bg-gradient-to-r from-ai-primary to-ai-secondary bg-clip-text text-transparent mb-3">AcademiaBot</h1>
+                    <p class="text-xl text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+                        Your intelligent academic companion powered by AI
+                    </p>
+                    <div id="user-stats" class="mt-4 grid grid-cols-2 md:grid-cols-4 gap-4 max-w-md mx-auto">
+                        <!-- Dynamic stats will be loaded here -->
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+                    <button class="quick-action bounce-in p-4 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md transition-all duration-300 hover:scale-105 text-center" data-prompt="Analyze my academic performance and give me personalized recommendations">
+                        <span class="material-symbols-outlined text-ai-primary text-2xl mb-2">analytics</span>
+                        <p class="text-sm font-medium text-gray-900 dark:text-white">Performance Analysis</p>
+                    </button>
+                    <button class="quick-action bounce-in p-4 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md transition-all duration-300 hover:scale-105 text-center" data-prompt="Create a personalized study plan for my current courses">
+                        <span class="material-symbols-outlined text-ai-secondary text-2xl mb-2">schedule</span>
+                        <p class="text-sm font-medium text-gray-900 dark:text-white">Study Plan</p>
+                    </button>
+                    <button class="quick-action bounce-in p-4 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md transition-all duration-300 hover:scale-105 text-center" data-prompt="Help me calculate what grades I need to achieve my target CGPA">
+                        <span class="material-symbols-outlined text-green-500 text-2xl mb-2">calculate</span>
+                        <p class="text-sm font-medium text-gray-900 dark:text-white">Grade Calculator</p>
+                    </button>
+                    <button class="quick-action bounce-in p-4 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md transition-all duration-300 hover:scale-105 text-center" data-prompt="Give me strategies to improve my time management and productivity">
+                        <span class="material-symbols-outlined text-ai-accent text-2xl mb-2">productivity</span>
+                        <p class="text-sm font-medium text-gray-900 dark:text-white">Productivity Tips</p>
+                    </button>
+                </div>
+
+                <!-- Chat Interface -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+                    <!-- Chat Header -->
+                    <div class="flex items-center gap-3 p-6 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-ai-primary/10 via-ai-accent/10 to-ai-secondary/10">
+                        <div class="w-12 h-12 bg-gradient-to-r from-ai-primary to-ai-secondary rounded-full flex items-center justify-center shadow-md">
+                            <span class="material-symbols-outlined text-white text-xl">school</span>
+                        </div>
+                        <div class="flex-1">
+                            <h3 class="font-bold text-gray-900 dark:text-white text-lg">AcademiaBot</h3>
+                            <p class="text-sm text-gray-600 dark:text-gray-400" id="bot-status">Analyzing your academic profile • Online</p>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button id="export-chat" class="p-2 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors" title="Export conversation">
+                                <span class="material-symbols-outlined text-gray-600 dark:text-gray-400">download</span>
+                            </button>
+                            <button id="clear-chat" class="p-2 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors" title="Clear conversation">
+                                <span class="material-symbols-outlined text-gray-600 dark:text-gray-400">delete</span>
+                            </button>
+                            <button id="suggest-questions" class="p-2 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors" title="Suggest questions">
+                                <span class="material-symbols-outlined text-gray-600 dark:text-gray-400">lightbulb</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Chat Messages -->
+                    <div id="chat-messages" class="chat-container h-96 overflow-y-auto p-6 space-y-4 bg-gray-50/50 dark:bg-gray-900/50">
+                        <!-- Welcome message will be loaded here -->
+                    </div>
+
+                    <!-- Typing Indicator -->
+                    <div id="typing-indicator" class="hidden px-6 py-3 bg-gray-50/50 dark:bg-gray-900/50">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 bg-gradient-to-r from-ai-primary to-ai-secondary rounded-full flex items-center justify-center flex-shrink-0">
+                                <span class="material-symbols-outlined text-white text-sm">school</span>
+                            </div>
+                            <div class="bg-white dark:bg-gray-800 rounded-2xl rounded-tl-none px-4 py-3 shadow-sm border border-gray-200 dark:border-gray-700">
+                                <div class="typing-indicator">
+                                    <span>.</span>
+                                    <span>.</span>
+                                    <span>.</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Interactive Actions -->
+                    <div id="interactive-actions" class="hidden px-6 py-4 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
+                        <div class="flex flex-wrap gap-2">
+                            <!-- Action buttons will be dynamically added here -->
+                        </div>
+                    </div>
+
+                    <!-- Chat Input -->
+                    <div class="p-4 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
+                        <form id="chat-form" class="flex gap-3">
+                            <div class="flex-1 relative">
+                                <input 
+                                    type="text" 
+                                    id="message-input" 
+                                    placeholder="Ask me anything about your academics..." 
+                                    class="w-full bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-xl px-4 py-3 pr-12 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-ai-primary focus:border-transparent transition-all duration-300"
+                                    autocomplete="off"
+                                >
+                                <button type="button" id="voice-input" class="absolute right-3 top-1/2 transform -translate-y-1/2 p-1 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
+                                    <span class="material-symbols-outlined text-gray-500 dark:text-gray-400">mic</span>
+                                </button>
+                            </div>
+                            <button 
+                                type="submit" 
+                                id="send-button"
+                                class="bg-gradient-to-r from-ai-primary to-ai-secondary text-white rounded-xl px-6 py-3 font-medium hover:opacity-90 transition-all duration-300 hover:scale-105 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                                <span class="material-symbols-outlined text-lg">send</span>
+                                <span class="hidden sm:inline">Send</span>
+                            </button>
+                        </form>
+                        
+                        <!-- Suggested Questions -->
+                        <div id="suggested-questions" class="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-3">
+                            <!-- Dynamic suggestions based on user data -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Features Section -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
+                    <div class="text-center p-6 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 hover:shadow-lg transition-shadow duration-300">
+                        <span class="material-symbols-outlined text-ai-primary text-3xl mb-3">psychology</span>
+                        <h3 class="font-bold text-gray-900 dark:text-white mb-2">Smart Analysis</h3>
+                        <p class="text-sm text-gray-600 dark:text-gray-400">Personalized insights based on your academic performance and goals</p>
+                    </div>
+                    <div class="text-center p-6 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 hover:shadow-lg transition-shadow duration-300">
+                        <span class="material-symbols-outlined text-ai-secondary text-3xl mb-3">auto_awesome</span>
+                        <h3 class="font-bold text-gray-900 dark:text-white mb-2">AI Powered</h3>
+                        <p class="text-sm text-gray-600 dark:text-gray-400">Advanced algorithms to optimize your study strategies and performance</p>
+                    </div>
+                    <div class="text-center p-6 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 hover:shadow-lg transition-shadow duration-300">
+                        <span class="material-symbols-outlined text-ai-accent text-3xl mb-3">trending_up</span>
+                        <h3 class="font-bold text-gray-900 dark:text-white mb-2">Progress Tracking</h3>
+                        <p class="text-sm text-gray-600 dark:text-gray-400">Monitor your academic growth and get improvement recommendations</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="w-full mt-16 border-t border-gray-200 dark:border-gray-700 pt-8 pb-12">
+            <div class="container mx-auto px-4">
+                <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <div class="flex items-center gap-4 text-gray-900 dark:text-white mb-4 sm:mb-0">
+                        <div class="size-6 text-primary">
+                            <svg fill="currentColor" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+                                <g clip-path="url(#clip0_6_330)">
+                                    <path clip-rule="evenodd" d="M24 0.757355L47.2426 24L24 47.2426L0.757355 24L24 0.757355ZM21 35.7574V12.2426L9.24264 24L21 35.7574Z" fill="currentColor" fill-rule="evenodd"></path>
+                                </g>
+                            </svg>
+                        </div>
+                        <h3 class="text-lg font-bold">AcademiaTrack</h3>
+                    </div>
+                    <div class="flex flex-col sm:flex-row items-center gap-6 text-sm">
+                        <div class="flex items-center gap-6 mb-4 sm:mb-0">
+                            <a class="text-gray-500 dark:text-gray-400 hover:text-primary dark:hover:text-primary" href="homepage.html">Dashboard</a>
+                            <a class="text-gray-500 dark:text-gray-400 hover:text-primary dark:hover:text-primary" href="progresspage.html">Progress</a>
+                            <a class="text-gray-500 dark:text-gray-400 hover:text-primary dark:hover:text-primary" href="#.html">ChatBot</a>
+                        </div>
+                        <div class="flex items-center gap-6">
+                            <a class="text-gray-500 dark:text-gray-400 hover:text-primary dark:hover:text-primary" href="activities-page.html">Activities</a>
+                            <a class="text-gray-500 dark:text-gray-400 hover:text-primary dark:hover:text-primary" href="profile-page.html">Profile</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="text-center mt-6">
+                    <p class="text-gray-500 dark:text-gray-400 text-sm">© 2025 AcademiaTrack. Your intelligent academic companion.</p>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        // Enhanced AcademiaBot with Firebase integration
+        const chatMessages = document.getElementById('chat-messages');
+        const messageInput = document.getElementById('message-input');
+        const chatForm = document.getElementById('chat-form');
+        const sendButton = document.getElementById('send-button');
+        const typingIndicator = document.getElementById('typing-indicator');
+        const clearChatButton = document.getElementById('clear-chat');
+        const suggestQuestionsButton = document.getElementById('suggest-questions');
+        const exportChatButton = document.getElementById('export-chat');
+        const interactiveActions = document.getElementById('interactive-actions');
+        const userStats = document.getElementById('user-stats');
+        const botStatus = document.getElementById('bot-status');
+        const suggestedQuestions = document.getElementById('suggested-questions');
+
+        // Global variables
+        let conversationHistory = [];
+        let currentUser = null;
+        let userAcademicData = {};
+
+        // Fallback initialization if Firebase fails
+        function initializeBotWithLocalStorage() {
+            console.log("=== ACADEMIABOT LOCALSTORAGE INITIALIZATION ===");
+            
+            // Get current user data from localStorage
+            const userDataString = localStorage.getItem('academiatrack_current_user');
+            console.log("Raw user data from localStorage:", userDataString);
+            
+            currentUser = JSON.parse(userDataString || '{}');
+            console.log("Parsed user data:", currentUser);
+            
+            loadUserAcademicData(currentUser);
+            loadConversationHistory();
+            updateUserStats();
+            updateSuggestedQuestions();
+            showPersonalizedWelcome();
+        }
+
+        // Load user academic data - UPDATED to match progress page structure
+        function loadUserAcademicData(userData) {
+            userAcademicData = {
+                semesters: userData.semesters || [],
+                activities: userData.activities || [],
+                profile: {
+                    name: userData.fullName,
+                    level: userData.level,
+                    department: userData.department,
+                    university: userData.university
+                }
+            };
+            
+            console.log("Loaded academic data:", userAcademicData);
+        }
+
+        // Calculate user statistics - FIXED VERSION
+        function calculateUserStats() {
+            console.log("=== CALCULATING USER STATS ===");
+            
+            const semesters = userAcademicData.semesters || [];
+            let totalCredits = 0;
+            let totalGradePoints = 0;
+            let totalCourses = 0;
+            let completedCourses = 0;
+
+            console.log("Found semesters:", semesters.length);
+
+            semesters.forEach(semester => {
+                console.log(`Processing semester: ${semester.level} Level - ${semester.type} ${semester.year}`);
+                
+                if (semester.courses && Array.isArray(semester.courses)) {
+                    totalCourses += semester.courses.length;
+                    console.log(`Found ${semester.courses.length} courses in this semester`);
+                    
+                    semester.courses.forEach(course => {
+                        console.log(`Course: "${course.title}", Units: "${course.units}", Grade: "${course.grade}"`);
+                        
+                        if (course.units && course.grade && course.grade.trim() !== '') {
+                            const credits = parseFloat(course.units);
+                            const gradePoint = getGradePoint(course.grade);
+                            
+                            console.log(`Parsed - Credits: ${credits}, Grade Point: ${gradePoint}`);
+                            
+                            if (!isNaN(credits) && gradePoint !== null) {
+                                totalGradePoints += credits * gradePoint;
+                                totalCredits += credits;
+                                completedCourses++;
+                                console.log(`Added to calculation: ${credits} credits × ${gradePoint} = ${credits * gradePoint} grade points`);
+                            }
+                        } else {
+                            console.log(`Skipping course - missing units or grade`);
+                        }
+                    });
+                } else {
+                    console.log(`No courses array found in semester`);
+                }
+            });
+
+            const cgpa = totalCredits > 0 ? (totalGradePoints / totalCredits).toFixed(2) : '0.00';
+            
+            console.log("=== FINAL CALCULATION RESULTS ===");
+            console.log(`Total Credits: ${totalCredits}`);
+            console.log(`Total Grade Points: ${totalGradePoints}`);
+            console.log(`CGPA: ${cgpa}`);
+            console.log(`Total Courses: ${totalCourses}`);
+            console.log(`Completed Courses: ${completedCourses}`);
+            console.log(`Total Semesters: ${semesters.length}`);
+
+            // Save stats to Firebase if available
+            if (window.currentUser && window.saveUserStatsToFirebase) {
+                window.saveUserStatsToFirebase(window.currentUser.uid, {
+                    cgpa,
+                    courses: totalCourses,
+                    completedCourses: completedCourses,
+                    semesters: semesters.length,
+                    credits: totalCredits
+                });
+            }
+
+            return {
+                cgpa,
+                courses: totalCourses,
+                completedCourses: completedCourses,
+                semesters: semesters.length,
+                credits: totalCredits
+            };
+        }
+
+        // Get grade point from grade - UPDATED to match your progress page
+        function getGradePoint(grade) {
+            const gradePoints = {
+                'A': 5.0,
+                'B': 4.0, 
+                'C': 3.0,
+                'D': 2.0,
+                'E': 1.0,
+                'F': 0.0
+            };
+            const gradePoint = gradePoints[grade] !== undefined ? gradePoints[grade] : null;
+            console.log(`Grade "${grade}" = ${gradePoint} points`);
+            return gradePoint;
+        }
+
+        // Update user stats display - IMPROVED with better data
+        function updateUserStats() {
+            const stats = calculateUserStats();
+            userStats.innerHTML = `
+                <div class="text-center p-3 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+                    <div class="text-2xl font-bold text-ai-primary">${stats.cgpa}</div>
+                    <div class="text-xs text-gray-600 dark:text-gray-400">CGPA</div>
+                </div>
+                <div class="text-center p-3 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+                    <div class="text-2xl font-bold text-ai-secondary">${stats.courses}</div>
+                    <div class="text-xs text-gray-600 dark:text-gray-400">Total Courses</div>
+                </div>
+                <div class="text-center p-3 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+                    <div class="text-2xl font-bold text-ai-accent">${stats.semesters}</div>
+                    <div class="text-xs text-gray-600 dark:text-gray-400">Semesters</div>
+                </div>
+                <div class="text-center p-3 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+                    <div class="text-2xl font-bold text-green-500">${stats.credits}</div>
+                    <div class="text-xs text-gray-600 dark:text-gray-400">Credits</div>
+                </div>
+            `;
+        }
+
+        // Show personalized welcome message - IMPROVED with actual data
+        function showPersonalizedWelcome() {
+            const stats = calculateUserStats();
+            const userName = userAcademicData.profile.name || 'there';
+            const userLevel = userAcademicData.profile.level ? `${userAcademicData.profile.level} Level` : 'your current level';
+            const userDepartment = userAcademicData.profile.department || 'your department';
+            
+            const welcomeMessage = `👋 Hello ${userName}! I'm **AcademiaBot**, your AI academic assistant. 
+
+I can see you're at **${userLevel}** studying **${userDepartment}** and I've analyzed your academic profile:
+
+📊 **Your Academic Summary:**
+• **CGPA**: ${stats.cgpa}/5.0
+• **Semesters**: ${stats.semesters}
+• **Courses**: ${stats.courses} total, ${stats.completedCourses} with grades
+• **Credits Completed**: ${stats.credits}
+
+Here's what I can help you with:
+• 📊 **Analyze** your academic performance in detail
+• 🎯 **Calculate** what grades you need for your target CGPA
+• 📚 **Create** personalized study plans for your courses
+• ⏰ **Manage** deadlines and optimize your schedule
+• 💡 **Provide** study strategies based on your performance
+• 🎓 **Guide** your course selection and academic decisions
+
+What would you like to work on today?`;
+
+            addMessageToChat(welcomeMessage, 'bot');
+            conversationHistory.push({
+                text: welcomeMessage,
+                sender: 'bot',
+                timestamp: new Date()
+            });
+            saveConversationHistory();
+        }
+
+        // Update suggested questions based on user data
+        function updateSuggestedQuestions() {
+            const suggestions = getPersonalizedSuggestions();
+            suggestedQuestions.innerHTML = suggestions.map(suggestion => `
+                <button class="suggestion-btn text-xs bg-gradient-to-r from-ai-primary/10 to-ai-secondary/10 text-gray-700 dark:text-gray-300 rounded-lg px-3 py-2 hover:from-ai-primary/20 hover:to-ai-secondary/20 transition-all duration-300 border border-ai-primary/20 hover:border-ai-primary/40 text-left" data-question="${suggestion.question}">
+                    ${suggestion.text}
+                </button>
+            `).join('');
+        }
+
+        // Get personalized suggestions based on user data
+        function getPersonalizedSuggestions() {
+            const stats = calculateUserStats();
+            const level = userAcademicData.profile.level;
+            const hasUpcomingDeadlines = checkUpcomingDeadlines().length > 0;
+
+            const baseSuggestions = [
+                { question: "How can I improve my CGPA?", text: "Improve my CGPA" },
+                { question: "Create a study schedule for me", text: "Study schedule" },
+                { question: "How do I manage multiple deadlines?", text: "Deadline management" }
+            ];
+
+            if (stats.cgpa < 3.0) {
+                baseSuggestions.push({ 
+                    question: "I need help improving my grades", 
+                    text: "Grade improvement" 
+                });
+            }
+
+            if (stats.cgpa >= 4.0) {
+                baseSuggestions.push({ 
+                    question: "How can I maintain my high GPA?", 
+                    text: "Maintain excellence" 
+                });
+            }
+
+            if (hasUpcomingDeadlines) {
+                baseSuggestions.push({ 
+                    question: "Help me prioritize my upcoming deadlines", 
+                    text: "Priority tasks" 
+                });
+            }
+
+            if (level === '100' || level === '200') {
+                baseSuggestions.push({ 
+                    question: "What courses should I take next semester?", 
+                    text: "Course planning" 
+                });
+            }
+
+            return baseSuggestions.slice(0, 4);
+        }
+
+        // Check for upcoming deadlines
+        function checkUpcomingDeadlines() {
+            const now = new Date();
+            const activities = userAcademicData.activities || [];
+            return activities.filter(activity => {
+                if (!activity.dueDate || activity.completed) return false;
+                const dueDate = new Date(activity.dueDate);
+                return dueDate > now;
+            }).sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate));
+        }
+
+        // Enhanced AI Response Generator
+        function generateAIResponse(userMessage) {
+            const lowerMessage = userMessage.toLowerCase();
+            showTypingIndicator();
+
+            // Update bot status based on query type
+            if (lowerMessage.includes('gpa') || lowerMessage.includes('grade')) {
+                botStatus.textContent = 'Calculating grades • Analyzing performance';
+            } else if (lowerMessage.includes('study') || lowerMessage.includes('learn')) {
+                botStatus.textContent = 'Creating study plan • Optimizing strategies';
+            } else if (lowerMessage.includes('deadline') || lowerMessage.includes('due')) {
+                botStatus.textContent = 'Checking deadlines • Planning schedule';
+            } else {
+                botStatus.textContent = 'Processing request • Generating insights';
+            }
+
+            return new Promise((resolve) => {
+                setTimeout(() => {
+                    hideTypingIndicator();
+                    const response = generateComprehensiveResponse(userMessage);
+                    resolve(response);
+                }, 1000 + Math.random() * 1000);
+            });
+        }
+
+        // Comprehensive response generator (keep your existing implementation)
+        function generateComprehensiveResponse(userMessage) {
+            const lowerMessage = userMessage.toLowerCase();
+            const stats = calculateUserStats();
+            const upcomingDeadlines = checkUpcomingDeadlines();
+
+            if (lowerMessage.includes('gpa') || lowerMessage.includes('grade') || lowerMessage.includes('calculate')) {
+                return generateGPAAnalysis(stats, userMessage);
+            } else if (lowerMessage.includes('study') || lowerMessage.includes('exam') || lowerMessage.includes('learn')) {
+                return generateStudyPlan(userMessage);
+            } else if (lowerMessage.includes('deadline') || lowerMessage.includes('due') || lowerMessage.includes('assignment')) {
+                return generateDeadlineAnalysis(upcomingDeadlines, userMessage);
+            } else if (lowerMessage.includes('time') || lowerMessage.includes('schedule') || lowerMessage.includes('plan')) {
+                return generateTimeManagementAdvice(userMessage);
+            } else if (lowerMessage.includes('course') || lowerMessage.includes('subject')) {
+                return generateCourseAdvice(userMessage);
+            } else if (lowerMessage.includes('improve') || lowerMessage.includes('better')) {
+                return generateImprovementStrategies(stats, userMessage);
+            } else {
+                return generateGeneralAcademicAdvice(userMessage);
+            }
+        }
+
+        // Enhanced message handling
+        function addMessageToChat(text, sender) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message-fade-in flex gap-3 ${sender === 'user' ? 'flex-row-reverse' : ''}`;
+            
+            const avatar = document.createElement('div');
+            avatar.className = `w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
+                sender === 'user' 
+                    ? 'bg-gradient-to-r from-primary to-blue-600' 
+                    : 'bg-gradient-to-r from-ai-primary to-ai-secondary'
+            }`;
+            
+            avatar.innerHTML = sender === 'user' 
+                ? '<span class="material-symbols-outlined text-white text-sm">person</span>'
+                : '<span class="material-symbols-outlined text-white text-sm">school</span>';
+
+            const messageBubble = document.createElement('div');
+            messageBubble.className = `max-w-[80%] rounded-2xl px-4 py-3 shadow-sm border ${
+                sender === 'user'
+                    ? 'bg-primary text-white rounded-br-none'
+                    : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 rounded-tl-none'
+            }`;
+            
+            // Format message with basic markdown
+            const formattedText = text
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                .replace(/\n/g, '<br>');
+            
+            messageBubble.innerHTML = formattedText;
+
+            messageDiv.appendChild(avatar);
+            messageDiv.appendChild(messageBubble);
+            chatMessages.appendChild(messageDiv);
+            
+            // Scroll to bottom
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        // Show typing indicator
+        function showTypingIndicator() {
+            typingIndicator.classList.remove('hidden');
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        // Hide typing indicator
+        function hideTypingIndicator() {
+            typingIndicator.classList.add('hidden');
+        }
+
+        // Save conversation history with Firebase
+        function saveConversationHistory() {
+            if (window.currentUser && window.saveConversationToFirebase) {
+                window.saveConversationToFirebase(window.currentUser.uid, conversationHistory);
+            } else {
+                // Fallback to localStorage
+                localStorage.setItem('academiabot_conversation', JSON.stringify(conversationHistory));
+            }
+        }
+
+        // Load conversation history
+        function loadConversationHistory() {
+            // This is now handled by Firebase, but keep localStorage fallback
+            const saved = localStorage.getItem('academiabot_conversation');
+            if (saved && conversationHistory.length === 0) {
+                conversationHistory = JSON.parse(saved);
+                // Display conversation history
+                conversationHistory.forEach(msg => {
+                    addMessageToChat(msg.text, msg.sender);
+                });
+            }
+        }
+
+        // Clear chat
+        function clearChat() {
+            chatMessages.innerHTML = '';
+            conversationHistory = [];
+            
+            if (window.currentUser && window.saveConversationToFirebase) {
+                window.saveConversationToFirebase(window.currentUser.uid, []);
+            } else {
+                localStorage.removeItem('academiabot_conversation');
+            }
+            
+            showPersonalizedWelcome();
+        }
+
+        // Export chat
+        function exportChat() {
+            const chatText = conversationHistory.map(msg => 
+                `${msg.sender === 'user' ? 'You' : 'AcademiaBot'}: ${msg.text}`
+            ).join('\n\n');
+            
+            const blob = new Blob([chatText], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `academiabot-conversation-${new Date().toISOString().split('T')[0]}.txt`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        // Event Listeners
+        chatForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const message = messageInput.value.trim();
+            
+            if (!message) return;
+
+            // Add user message
+            addMessageToChat(message, 'user');
+            conversationHistory.push({
+                text: message,
+                sender: 'user',
+                timestamp: new Date()
+            });
+
+            // Clear input
+            messageInput.value = '';
+            sendButton.disabled = true;
+
+            // Hide interactive actions during new conversation
+            interactiveActions.classList.add('hidden');
+
+            // Generate and add AI response
+            try {
+                const response = await generateAIResponse(message);
+                addMessageToChat(response, 'bot');
+                conversationHistory.push({
+                    text: response,
+                    sender: 'bot',
+                    timestamp: new Date()
+                });
+                saveConversationHistory();
+            } catch (error) {
+                console.error('Error generating response:', error);
+                addMessageToChat("I apologize, but I'm having trouble processing your request right now. Please try again.", 'bot');
+            }
+        });
+
+        // Quick action buttons
+        document.querySelectorAll('.quick-action').forEach(button => {
+            button.addEventListener('click', () => {
+                const prompt = button.dataset.prompt;
+                messageInput.value = prompt;
+                chatForm.dispatchEvent(new Event('submit'));
+            });
+        });
+
+        // Suggested questions
+        suggestedQuestions.addEventListener('click', (e) => {
+            if (e.target.classList.contains('suggestion-btn')) {
+                const question = e.target.dataset.question;
+                messageInput.value = question;
+                chatForm.dispatchEvent(new Event('submit'));
+            }
+        });
+
+        // Input validation
+        messageInput.addEventListener('input', () => {
+            sendButton.disabled = !messageInput.value.trim();
+        });
+
+        // Clear chat button
+        clearChatButton.addEventListener('click', clearChat);
+
+        // Export chat button
+        exportChatButton.addEventListener('click', exportChat);
+
+        // Suggest questions button
+        suggestQuestionsButton.addEventListener('click', () => {
+            updateSuggestedQuestions();
+            // Add animation to suggestions
+            suggestedQuestions.classList.add('bounce-in');
+            setTimeout(() => suggestedQuestions.classList.remove('bounce-in'), 1000);
+        });
+
+        // Voice input (placeholder)
+        document.getElementById('voice-input').addEventListener('click', () => {
+            addMessageToChat("Voice input feature coming soon! Please type your message for now.", 'bot');
+        });
+
+        // Mobile menu toggle
+        document.getElementById('menu-toggle').addEventListener('click', () => {
+            const menu = document.getElementById('mobile-menu');
+            menu.classList.toggle('-translate-x-full');
+        });
+
+        // Close mobile menu when clicking outside
+        document.addEventListener('click', (e) => {
+            const menu = document.getElementById('mobile-menu');
+            const menuToggle = document.getElementById('menu-toggle');
+            
+            if (!menu.contains(e.target) && !menuToggle.contains(e.target) && !menu.classList.contains('-translate-x-full')) {
+                menu.classList.add('-translate-x-full');
+            }
+        });
+
+        // Keep your existing helper functions (generateGPAAnalysis, generateStudyPlan, etc.)
+        // ... [All your existing response generation functions remain the same]
+
+        // Add some sample data if no user data exists (for demo purposes)
+        if (!localStorage.getItem('academiatrack_current_user') && !window.currentUser) {
+            const sampleUser = {
+                fullName: "Alex Johnson",
+                level: "200",
+                department: "Computer Science",
+                university: "University of Technology",
+                semesters: [
+                    {
+                        id: "semester-1",
+                        level: "100",
+                        type: "Harmattan",
+                        year: "2023",
+                        courses: [
+                            { id: "course-1", title: "Introduction to Programming", units: "3", grade: "A" },
+                            { id: "course-2", title: "Calculus I", units: "4", grade: "B" },
+                            { id: "course-3", title: "Digital Logic", units: "3", grade: "A" }
+                        ],
+                        gpa: 4.25
+                    },
+                    {
+                        id: "semester-2", 
+                        level: "100",
+                        type: "Rain",
+                        year: "2023",
+                        courses: [
+                            { id: "course-4", title: "Data Structures", units: "3", grade: "B" },
+                            { id: "course-5", title: "Discrete Mathematics", units: "3", grade: "A" },
+                            { id: "course-6", title: "Computer Architecture", units: "3", grade: "C" }
+                        ],
+                        gpa: 3.67
+                    },
+                    {
+                        id: "semester-3",
+                        level: "200", 
+                        type: "Harmattan",
+                        year: "2024",
+                        courses: [
+                            { id: "course-7", title: "Algorithms", units: "3", grade: "" },
+                            { id: "course-8", title: "Database Systems", units: "3", grade: "" },
+                            { id: "course-9", title: "Operating Systems", units: "3", grade: "" }
+                        ],
+                        gpa: 0.00
+                    }
+                ],
+                activities: [
+                    { title: "Algorithms Assignment", dueDate: "2024-12-15", completed: false },
+                    { title: "Database Project", dueDate: "2024-12-20", completed: false }
+                ]
+            };
+            localStorage.setItem('academiatrack_current_user', JSON.stringify(sampleUser));
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Login - AcademiaTrack</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="firebase-config.js"></script>
+    <link href="https://fonts.googleapis.com" rel="preconnect"/>
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+    <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@100..900&amp;display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
+    <script>
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "primary": "#135bec",
+              "background-light": "#f6f6f8",
+              "background-dark": "#101622",
+              "success": "#10B981",
+              "error": "#EF4444",
+              "warning": "#F59E0B"
+            },
+            fontFamily: {
+              "display": ["Lexend", "sans-serif"]
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+    <style>
+      .material-symbols-outlined {
+        font-variation-settings:
+        'FILL' 0,
+        'wght' 400,
+        'GRAD' 0,
+        'opsz' 24
+      }
+      
+      /* Toast notification styles */
+      .toast {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 12px 20px;
+        border-radius: 8px;
+        color: white;
+        font-weight: 500;
+        z-index: 1000;
+        transform: translateX(400px);
+        transition: transform 0.3s ease-in-out;
+        max-width: 300px;
+      }
+      
+      .toast.show {
+        transform: translateX(0);
+      }
+      
+      .toast.success {
+        background-color: #10B981;
+      }
+      
+      .toast.error {
+        background-color: #EF4444;
+      }
+      
+      .toast.info {
+        background-color: #3B82F6;
+      }
+      
+      .toast.warning {
+        background-color: #F59E0B;
+      }
+      
+      /* Modal styles */
+      .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 1001;
+        align-items: center;
+        justify-content: center;
+      }
+      
+      .modal.show {
+        display: flex;
+      }
+      
+      .modal-content {
+        background-color: white;
+        border-radius: 12px;
+        padding: 24px;
+        width: 90%;
+        max-width: 400px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+      }
+      
+      .dark .modal-content {
+        background-color: #1f2937;
+        color: #f9fafb;
+      }
+      
+      /* Loading spinner */
+      .spinner {
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        border-radius: 50%;
+        border-top: 2px solid white;
+        width: 16px;
+        height: 16px;
+        animation: spin 1s linear infinite;
+        display: inline-block;
+        margin-right: 8px;
+      }
+      
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+    </style>
+</head>
+<body class="font-display">
+    <!-- Toast Notification -->
+    <div id="toast" class="toast"></div>
+
+    <!-- Forgot Password Modal -->
+    <div id="forgot-password-modal" class="modal">
+        <div class="modal-content">
+            <div class="text-center">
+                <h3 class="text-xl font-bold mb-2">Reset Your Password</h3>
+                <p class="text-gray-600 dark:text-gray-300 mb-4">
+                    Enter your email address and we'll send you a password reset link.
+                </p>
+                
+                <div class="mb-4">
+                    <input type="email" 
+                           id="reset-email" 
+                           class="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                           placeholder="Enter your email"
+                           required>
+                    <div id="reset-email-error" class="text-red-500 text-sm mt-1 hidden">Please enter a valid email</div>
+                </div>
+                
+                <div class="flex justify-between mt-6">
+                    <button id="cancel-reset" class="text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-white font-medium text-sm">
+                        Cancel
+                    </button>
+                    <button id="send-reset-link" class="bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary/90 transition">
+                        Send Reset Link
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="relative flex h-auto min-h-screen w-full flex-col bg-background-light dark:bg-background-dark group/design-root overflow-x-hidden" style='font-family: Lexend, "Noto Sans", sans-serif;'>
+        <div class="layout-container flex h-full grow flex-col">
+            <div class="px-4 flex flex-1 justify-center items-center py-5 lg:py-10">
+                <div class="w-full max-w-5xl mx-auto grid grid-cols-1 lg:grid-cols-2 items-center gap-12">
+                    <div class="hidden lg:flex w-full h-full items-center justify-center p-4">
+                        <div class="w-full max-w-md aspect-square bg-center bg-no-repeat bg-cover rounded-none" data-alt="Stylized illustration of books, a graduation cap, and abstract academic charts." style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAP9lcEUHguzcoZp7Mo-KtltgPNP9M1iIXKFiBTtnt79hZcMgiErj1ggKBRnhDAlxL6OVwpOgWaeTvpLDnM1Fj5uAtQbjKM4jzEdGxjOM73JKjaZ6gE5dun8FY-GV4tf_qHR-4nii7EPvmpoSsYraXNOl3ZYeaNjTBm0X8appHaiL6oQ-Yl7rJCFbyP5S4L_RwNMHNHBvO_Ly_YIlaNbJaihoI6auYU87p7bWj9lryYaK9ttO2qN92beIfWDDH61jJ0GtCfbBoKQmU");'></div>
+                    </div>
+                    <div class="layout-content-container flex flex-col w-full max-w-md mx-auto">
+                        <div class="flex flex-col items-center justify-center gap-2 mb-8 text-center">
+                            <span class="material-symbols-outlined text-5xl text-primary dark:text-primary">school</span>
+                            <h1 class="text-[#0d121b] dark:text-white tracking-light text-[32px] font-bold leading-tight pt-2">Welcome Back!</h1>
+                            <p class="text-[#4c669a] dark:text-slate-400 text-base font-normal leading-normal">Log in to your Dashboard</p>
+                        </div>
+                        
+                        <form id="login-form" class="flex flex-col gap-4">
+                            <div class="flex w-full flex-wrap items-end gap-4">
+                                <label class="flex flex-col min-w-40 flex-1">
+                                    <p class="text-[#0d121b] dark:text-slate-300 text-base font-medium leading-normal pb-2">Email Address</p>
+                                    <input class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#0d121b] focus:outline-0 focus:ring-2 focus:ring-primary/50 border border-[#cfd7e7] bg-[#f8f9fc] focus:border-primary dark:bg-background-dark dark:border-slate-700 dark:text-white dark:focus:border-primary h-14 placeholder:text-[#4c669a] p-[15px] text-base font-normal leading-normal" 
+                                           placeholder="Enter your email" 
+                                           type="email" 
+                                           id="email"
+                                           required/>
+                                </label>
+                            </div>
+                            
+                            <div class="flex w-full flex-wrap items-end gap-4">
+                                <label class="flex flex-col min-w-40 flex-1">
+                                    <div class="flex justify-between items-center pb-2">
+                                        <p class="text-[#0d121b] dark:text-slate-300 text-base font-medium leading-normal">Password</p>
+                                        <a class="text-primary text-sm font-medium hover:underline" href="#" id="forgot-password-link">Forgot Password?</a>
+                                    </div>
+                                    <div class="flex w-full flex-1 items-stretch rounded-lg">
+                                        <input class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#0d121b] focus:outline-0 focus:ring-2 focus:ring-primary/50 border border-[#cfd7e7] bg-[#f8f9fc] focus:border-primary dark:bg-background-dark dark:border-slate-700 dark:text-white dark:focus:border-primary h-14 placeholder:text-[#4c669a] p-[15px] rounded-r-none border-r-0 pr-2 text-base font-normal leading-normal" 
+                                               placeholder="Enter your password" 
+                                               type="password" 
+                                               id="password"
+                                               required/>
+                                        <div class="text-[#4c669a] flex border border-[#cfd7e7] bg-[#f8f9fc] items-center justify-center pr-[15px] rounded-r-lg border-l-0 dark:bg-background-dark dark:border-slate-700">
+                                            <span class="material-symbols-outlined cursor-pointer toggle-password">visibility_off</span>
+                                        </div>
+                                    </div>
+                                </label>
+                            </div>
+                            
+                            <button class="flex items-center justify-center font-semibold text-base text-white h-14 px-6 rounded-lg bg-primary hover:bg-primary/90 transition-colors w-full mt-4 disabled:opacity-50 disabled:cursor-not-allowed" 
+                                    type="submit" 
+                                    id="login-btn">
+                                Log In
+                            </button>
+                        </form>
+                        
+                        <div class="flex items-center gap-4 my-8">
+                            <hr class="w-full border-t border-[#cfd7e7] dark:border-slate-700"/>
+                            <p class="text-sm text-[#4c669a] dark:text-slate-400 shrink-0">Or continue with</p>
+                            <hr class="w-full border-t border-[#cfd7e7] dark:border-slate-700"/>
+                        </div>
+                        
+                        <div class="flex flex-col sm:flex-row gap-4">
+                            <button class="flex items-center justify-center font-semibold text-base text-[#0d121b] dark:text-white h-14 px-6 rounded-lg bg-white dark:bg-slate-800 border border-[#cfd7e7] dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors w-full gap-2">
+                                <svg class="w-5 h-5" fill="none" viewbox="0 0 48 48" xmlns="http://www.w3.org/2000/svg"><path clip-rule="evenodd" d="M48 24C48 37.2548 37.2548 48 24 48C10.7452 48 0 37.2548 0 24C0 10.7452 10.7452 0 24 0C37.2548 0 48 10.7452 48 24ZM24 4C12.9543 4 4 12.9543 4 24C4 35.0457 12.9543 44 24 44C35.0457 44 44 35.0457 44 24C44 12.9543 35.0457 4 24 4Z" fill="#E8E8E8" fill-rule="evenodd"></path><path d="M48 24C48 37.2548 37.2548 48 24 48C10.7452 48 0 37.2548 0 24C0 10.7452 10.7452 0 24 0C37.2548 0 48 10.7452 48 24Z" fill="#FBCB43"></path><path d="M48 24C48 37.2548 37.2548 48 24 48C10.7452 48 0 37.2548 0 24C0 10.7452 10.7452 0 24 0C37.2548 0 48 10.7452 48 24Z" fill="url(#paint0_linear_2_23)"></path><path d="M24 4C12.9543 4 4 12.9543 4 24C4 35.0457 12.9543 44 24 44C35.0457 44 44 35.0457 44 24C44 12.9543 35.0457 4 24 4Z" fill="#F44336"></path><path d="M24 4C12.9543 4 4 12.9543 4 24C4 35.0457 12.9543 44 24 44C35.0457 44 44 35.0457 44 24C44 12.9543 35.0457 4 24 4Z" fill="url(#paint1_linear_2_23)"></path><path clip-rule="evenodd" d="M11 24C11 16.8203 16.8203 11 24 11C28.4253 11 32.3218 13.0645 34.8037 16.2995L30.9333 19.9825C29.4316 18.7369 26.9023 17.5 24 17.5C19.867 17.5 16.5 20.867 16.5 25C16.5 29.133 19.867 32.5 24 32.5C27.5306 32.5 30.2908 30.7969 31.4278 27.75H24V23.25H37.3305C37.5 25.1311 37.5 26.5 37.5 28.5C37.5 35.9371 31.9371 41.5 24.5 41.5C17.0294 41.5 11 35.4706 11 28C11 26.4389 11 24 11 24Z" fill="white" fill-rule="evenodd"></path><defs><lineargradient gradientunits="userSpaceOnUse" id="paint0_linear_2_23" x1="24" x2="24" y1="0" y2="48"><stop stop-color="#FFC107"></stop><stop offset="1" stop-color="#F44336"></stop></lineargradient><lineargradient gradientunits="userSpaceOnUse" id="paint1_linear_2_23" x1="24" x2="24" y1="4" y2="44"><stop stop-color="#4CAF50"></stop><stop offset="1" stop-color="#2196F3"></stop></lineargradient></defs></svg>
+                                <span>Continue with Google</span>
+                            </button>
+                        </div>
+                        
+                        <p class="text-center text-sm text-[#4c669a] dark:text-slate-400 mt-8">
+                            Don't have an account? <a class="font-semibold text-primary hover:underline" href="signup-page.html">Sign Up</a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Toast notification function
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = `toast ${type} show`;
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        // Password visibility toggle
+        document.querySelector('.toggle-password').addEventListener('click', function() {
+            const passwordInput = document.getElementById('password');
+            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+            this.textContent = type === 'password' ? 'visibility_off' : 'visibility';
+        });
+
+        // Modal management
+        function showModal(modalId) {
+            document.getElementById(modalId).classList.add('show');
+        }
+
+        function hideModal(modalId) {
+            document.getElementById(modalId).classList.remove('show');
+        }
+
+        // Forgot password functionality
+        document.getElementById('forgot-password-link').addEventListener('click', function(e) {
+            e.preventDefault();
+            showModal('forgot-password-modal');
+        });
+
+        document.getElementById('cancel-reset').addEventListener('click', function() {
+            hideModal('forgot-password-modal');
+        });
+
+        // Send password reset email
+        document.getElementById('send-reset-link').addEventListener('click', async function() {
+            const email = document.getElementById('reset-email').value.trim();
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            
+            if (!email || !emailRegex.test(email)) {
+                document.getElementById('reset-email-error').classList.remove('hidden');
+                return;
+            }
+            
+            this.disabled = true;
+            this.innerHTML = '<span class="spinner"></span> Sending...';
+            
+            try {
+                await firebaseUtils.sendPasswordReset(email);
+                hideModal('forgot-password-modal');
+                showToast('Password reset email sent! Check your inbox.', 'success');
+            } catch (error) {
+                console.error('Password reset error:', error);
+                let errorMessage = 'Failed to send reset email. ';
+                
+                switch (error.code) {
+                    case 'auth/user-not-found':
+                        errorMessage += 'No account found with this email.';
+                        break;
+                    case 'auth/invalid-email':
+                        errorMessage += 'The email address is invalid.';
+                        break;
+                    default:
+                        errorMessage += error.message;
+                }
+                
+                showToast(errorMessage, 'error');
+            }
+            
+            this.disabled = false;
+            this.textContent = 'Send Reset Link';
+        });
+
+        // Login functionality
+        document.getElementById('login-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const loginBtn = document.getElementById('login-btn');
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+            
+            loginBtn.disabled = true;
+            loginBtn.innerHTML = '<span class="spinner"></span> Logging in...';
+            
+            try {
+                // Sign in with Firebase Auth
+                const userCredential = await firebaseUtils.signIn(email, password);
+                const user = userCredential.user;
+                
+                // Check if email is verified
+                if (!user.emailVerified) {
+                    showToast('Please verify your email before logging in.', 'warning');
+                    // Optionally, you can resend verification email here
+                    await firebaseUtils.sendEmailVerification();
+                    showToast('Verification email sent. Please check your inbox.', 'info');
+                    loginBtn.disabled = false;
+                    loginBtn.textContent = 'Log In';
+                    return;
+                }
+                
+                // Get user data from Firebase Database
+                const userData = await firebaseUtils.getUserData(user.uid);
+                
+                if (userData) {
+                    // Store user data in localStorage for quick access (optional)
+                    localStorage.setItem('academiatrack_current_user', JSON.stringify(userData));
+                    
+                    showToast('Login successful! Redirecting...', 'success');
+                    
+                    setTimeout(() => {
+                        window.location.href = 'homepage.html';
+                    }, 1500);
+                } else {
+                    throw new Error('User data not found');
+                }
+                
+            } catch (error) {
+                console.error('Login error:', error);
+                let errorMessage = 'Login failed. ';
+                
+                switch (error.code) {
+                    case 'auth/user-not-found':
+                        errorMessage += 'No account found with this email.';
+                        break;
+                    case 'auth/wrong-password':
+                        errorMessage += 'Incorrect password.';
+                        break;
+                    case 'auth/invalid-email':
+                        errorMessage += 'The email address is invalid.';
+                        break;
+                    case 'auth/user-disabled':
+                        errorMessage += 'This account has been disabled.';
+                        break;
+                    default:
+                        errorMessage += error.message;
+                }
+                
+                showToast(errorMessage, 'error');
+                loginBtn.disabled = false;
+                loginBtn.textContent = 'Log In';
+            }
+        });
+
+        // Check if user is already logged in
+        document.addEventListener('DOMContentLoaded', function() {
+            firebaseUtils.getCurrentUser().then(user => {
+                if (user && user.emailVerified) {
+                    window.location.href = 'homepage.html';
+                }
+            });
+        });
+    </script>
+</body>
+</html>
